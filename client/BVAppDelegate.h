@@ -1,17 +1,15 @@
 //
-//  AppDelegate.h
+//  BVAppDelegate.h
 //  BitVisual
 //
-//  Created by Sean Estey on 2014-06-22.
+//  Created by Sean Estey on 1/18/2014.
 //  Copyright (c) 2014 Sean Estey. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@interface BVAppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 
-
 @end
-
