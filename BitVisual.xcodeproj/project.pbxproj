@@ -58,6 +58,13 @@
 			remoteGlobalIDString = 8C15B9531957A8D9006DE09F;
 			remoteInfo = BitVisual;
 		};
+		8CBBB0831957CD5900232E21 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C15B94C1957A8D9006DE09F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8C15B9531957A8D9006DE09F;
+			remoteInfo = BitVisual;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -127,8 +134,8 @@
 			isa = PBXGroup;
 			children = (
 				8C15B97A1957A983006DE09F /* client */,
-				8CBBB0601957CD0B00232E21 /* images */,
 				8C15B99A1957A983006DE09F /* server */,
+				8CBBB0601957CD0B00232E21 /* images */,
 				8C15B9A21957A983006DE09F /* website */,
 				8C15B9561957A8D9006DE09F /* BitVisual */,
 				8C15B96D1957A8D9006DE09F /* BitVisualTests */,
@@ -300,6 +307,7 @@
 			dependencies = (
 				8C15B96C1957A8D9006DE09F /* PBXTargetDependency */,
 				8CBBB0821957CD5900232E21 /* PBXTargetDependency */,
+				8CBBB0841957CD5900232E21 /* PBXTargetDependency */,
 			);
 			name = BitVisualTests;
 			productName = BitVisualTests;
@@ -423,6 +431,11 @@
 			target = 8C15B9531957A8D9006DE09F /* BitVisual */;
 			targetProxy = 8CBBB0811957CD5900232E21 /* PBXContainerItemProxy */;
 		};
+		8CBBB0841957CD5900232E21 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8C15B9531957A8D9006DE09F /* BitVisual */;
+			targetProxy = 8CBBB0831957CD5900232E21 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -509,7 +522,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Sean Estey (AGV6J2RW7V)";
 				INFOPLIST_FILE = BitVisual/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "D8C7F78A-6A3E-4325-AD14-44DBE44F55AD";
@@ -524,7 +537,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Sean Estey (AGV6J2RW7V)";
 				INFOPLIST_FILE = BitVisual/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "D8C7F78A-6A3E-4325-AD14-44DBE44F55AD";

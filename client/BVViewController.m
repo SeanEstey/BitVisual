@@ -262,7 +262,7 @@ NSTimeInterval t2;
     
     
     exchangeButton = [[UIButton alloc] initWithFrame:CGRectMake(80, 5, 100,40)];
-    [exchangeButton addTarget:self action:@selector(toggleExchangesMenu::) forControlEvents:UIControlEventTouchUpInside];
+    [exchangeButton addTarget:self action:@selector(toggleExchangesMenu:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:exchangeButton];
     if(exchangeSymbols[exchange])
         [exchangeButton setTitle:[NSString stringWithFormat:@"%@ %C", exchangeSymbols[exchange], (unichar)0x25BC] forState:UIControlStateNormal];
