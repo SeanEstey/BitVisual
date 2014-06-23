@@ -259,8 +259,6 @@ NSTimeInterval t2;
     priceGraph.retryConnectionButton = self.retryConnectionButton;
     priceGraph.loadSpinner = self.loadSpinner;
     
-    
-    
     exchangeButton = [[UIButton alloc] initWithFrame:CGRectMake(80, 5, 100,40)];
     [exchangeButton addTarget:self action:@selector(toggleExchangesMenu:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:exchangeButton];
