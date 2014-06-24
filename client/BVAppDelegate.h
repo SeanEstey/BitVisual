@@ -1,4 +1,3 @@
-//
 //  BVAppDelegate.h
 //  BitVisual
 //

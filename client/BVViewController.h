@@ -1,4 +1,3 @@
-//
 //  BVViewController.h
 //  BitVisual
 //

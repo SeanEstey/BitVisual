@@ -1,4 +1,3 @@
-//
 //  BVMenu.h
 //  BitVisual
 //
