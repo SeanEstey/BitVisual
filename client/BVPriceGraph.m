@@ -222,7 +222,7 @@ NSTimeInterval t2;
 
 -(void)queryStart:(int)start end:(int)end
 {
-    NSString* connectionURL = [NSString stringWithFormat:@"http://www.seanestey.ca/bitvisual/server/price_history.py?symbol=%@&start=%i&end=%i&freq=%@", symbol, start, end, frequency_symbol];
+    NSString* connectionURL = [NSString stringWithFormat:@"http://www.seanestey.ca/bitvisual/python/price_history.py?symbol=%@&start=%i&end=%i&freq=%@", symbol, start, end, frequency_symbol];
  //   NSLog(@"Querying %@", connectionURL);
     
     t1 = [[NSDate date] timeIntervalSince1970];

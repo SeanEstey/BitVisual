@@ -657,7 +657,7 @@ NSTimeInterval t2;
     
     t1 = [[NSDate date] timeIntervalSince1970];
 
-    NSURLRequest* r1 = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.seanestey.ca/bitvisual/server/get_markets.py"]];
+    NSURLRequest* r1 = [NSURLRequest requestWithURL:[NSURL URLWithString:@"http://www.seanestey.ca/bitvisual/python/get_markets.py"]];
     ((ConnectionData*)connections[MARKET_DATA]).data = [NSMutableData data];
     ((ConnectionData*)connections[MARKET_DATA]).connection = [[NSURLConnection alloc] initWithRequest:r1 delegate:self];
 }
