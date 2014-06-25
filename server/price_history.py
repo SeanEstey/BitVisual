@@ -30,6 +30,8 @@ def application(environment, start_response):
 
 	dlist = dumps(prices)
 	
+	client.close()
+
 	status = '200 OK'
         response_headers = [('Content-type', 'text/plain')]
         start_response(status, response_headers)

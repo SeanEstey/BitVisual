@@ -9,7 +9,8 @@ def application(environment, start_response):
 	db = client.mydb
 	market_data = db['markets'].find({}, {'_id':False,'symbol':1,'time':1,'close':1})
 	dlist = dumps(market_data)
-	
+	client.close()	
+
 	status = '200 OK'
         response_headers = [('Content-type', 'text/plain')]
         start_response(status, response_headers)

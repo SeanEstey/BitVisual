@@ -9,6 +9,7 @@ import os.path
 import logging
 import numpy as np
 import pandas as pd
+import pymongo
 
 def log(msg):
 	logger = logging.getLogger('logger')
@@ -17,7 +18,6 @@ def log(msg):
 	logger.addHandler(logging.FileHandler('/var/www/bitvisual/log.log'))
 	from time import strftime
 	logger.error(strftime('%Y-%m-%d %H:%M: ') + msg)
-	#logger.error(msg)
 
 def log_exception(msg):
 	exc_logger = logging.getLogger('exc_logger')
@@ -28,12 +28,21 @@ def log_exception(msg):
 	import traceback
 	exc_logger.error(strftime('%Y-%m-%d %H:%M: ') + msg + ': stack dump:' + traceback.format_exc())
 
-def update_btcavg_markets():
+def mongo_connect():
+	try:
+		client = pymongo.MongoClient('localhost', 27017)
+	except pymongo.errors.ConnectionFailure:
+		log_exception('couldnt connect to mongodb')
+		return
+
+	return client.mydb
+
+def mongo_disconnect(db):
+	return db.connection.close()
+
+def update_btcavg_markets(db):
 	import simplejson
-	import json
 	import urllib2
-	import pymongo
-	import httplib
 
 	request = urllib2.Request('https://api.bitcoinaverage.com/ticker/all')
 
@@ -47,8 +56,6 @@ def update_btcavg_markets():
 		return False
 
 	data = simplejson.load(response)
-	client = pymongo.MongoClient('localhost',27017)
-	db = client.mydb
 	mongo_collections = db.collection_names()
 	# iteritems() converts dict to array with [0] element key and [1] element is value
 	for item in data.iteritems():
@@ -63,12 +70,9 @@ def update_btcavg_markets():
 
 	return True
 
-def update_btccharts_markets():
+def update_btccharts_markets(db):
 	import simplejson
-	import json
 	import urllib2
-	import pymongo
-	import httplib
 
 	request = urllib2.Request('http://api.bitcoincharts.com/v1/markets.json')
 
@@ -82,8 +86,6 @@ def update_btccharts_markets():
 		return False
 
 	data = simplejson.load(response)
-	client = pymongo.MongoClient('localhost',27017)
-	db = client.mydb
 	mongo_collections = db.collection_names()
 
 	for (i, item) in enumerate(data):
@@ -98,7 +100,6 @@ def read_raw_btccharts_csv(f):
     # reads csv format: [unixtime, price, amount]
 	# returns csv format: [date (datetime) price amount]
 	import urllib2
-	import httplib
     
 	try:
 		response = urllib2.urlopen(f, timeout=1)
@@ -124,7 +125,6 @@ def read_raw_btcavg_csv(f):
 	# reads csv format: [datetime (YYYY-MM-DD) high low average volume] 
 	# returns csv format: [date (datetime) price amount]
 	import urllib2
-	import httplib
 
 	try:
 		response = urllib2.urlopen(f, timeout=1)
@@ -141,11 +141,8 @@ def read_raw_btcavg_csv(f):
 	df.index.name = 'date'
 	return df
 
-def create_db_collection(symbol, df):
-	import pymongo
-	client = pymongo.MongoClient('localhost',27017)
+def create_db_collection(db, symbol, df):
 	dlist = df.to_dict('records')
-	db = client.mydb
 	db.create_collection(symbol)
 	db[symbol].insert(dlist)
 	db[symbol].ensure_index('date')
@@ -171,12 +168,9 @@ def process_raw_csv(df, has_volume):
 		df.columns = ['date','price']
 	return df
 
-def update_trades(symbol, source):
+def update_trades(db, symbol, source):
 	# update latest trades since last timestamp and insert to db
 	# returns number of trades added to db (0 if error)
-	import pymongo	
-	client = pymongo.MongoClient('localhost',27017)
-	db = client.mydb
 	last_record = db[symbol].find().sort('date',-1).limit(1)
 	last_timestamp = int(last_record[0]['date'])
 	
