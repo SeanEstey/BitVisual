@@ -259,14 +259,16 @@ NSTimeInterval t2;
     priceGraph.retryConnectionButton = self.retryConnectionButton;
     priceGraph.loadSpinner = self.loadSpinner;
     
-    exchangeButton = [[UIButton alloc] initWithFrame:CGRectMake(80, 5, 100,40)];
+    int exchangeButWidth = 175;
+    exchangeButton = [[UIButton alloc] initWithFrame:CGRectMake(screenBounds.size.width/2-exchangeButWidth/2, 5, exchangeButWidth,40)];
     [exchangeButton addTarget:self action:@selector(toggleExchangesMenu:) forControlEvents:UIControlEventTouchUpInside];
+    exchangeButton.titleLabel.font = [UIFont fontWithName:@"Futura" size:16];
+    exchangeButton.titleLabel.textAlignment = NSTextAlignmentCenter;
     [self.view addSubview:exchangeButton];
     if(exchangeSymbols[exchange])
         [exchangeButton setTitle:[NSString stringWithFormat:@"%@ %C", exchangeSymbols[exchange], (unichar)0x25BC] forState:UIControlStateNormal];
     else
         [exchangeButton setTitle:[NSString stringWithFormat:@"%@ %C", exchange, (unichar)0x25BC] forState:UIControlStateNormal];
-    
     
     priceLabel = [[UILabel alloc]initWithFrame:CGRectMake(80, 20, 200, 60)];
     priceLabel.text = @"";
@@ -283,7 +285,10 @@ NSTimeInterval t2;
     [priceLabel addGestureRecognizer:priceLabelGestureRecognizer];
     [self.view insertSubview:priceLabel belowSubview:exchangeButton];
     
-    timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(80,100,150,25)];
+    int timeLabelWidth = 175;
+    timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(screenBounds.size.width/2-timeLabelWidth/2,105,timeLabelWidth,25)];
+    timeLabel.font = [UIFont systemFontOfSize:10];
+    timeLabel.textAlignment = NSTextAlignmentCenter;
     [self.view addSubview:timeLabel];
     
     priceChangeLabel = [[UILabel alloc]initWithFrame:CGRectMake(screenBounds.size.width - 50, currencyButton.frame.origin.y+30, 65, 50)];
