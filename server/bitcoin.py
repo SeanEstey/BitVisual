@@ -9,9 +9,17 @@ import os.path
 import logging
 import numpy as np
 import pandas as pd
-from time import strftime
-logging.basicConfig(filename='/var/www/bitvisual/log.log',level=logging.DEBUG)	
 
+def log(msg):
+    from time import strftime
+    logging.basicConfig(filename='/var/www/bitvisual/log.log',level=logging.DEBUG)
+    logging.info(strftime('%Y-%m-%d %H:%M: ') + msg)
+
+def log_exception(msg):
+    from time import strftime
+    logging.basicConfig(filename='/var/www/bitvisual/exceptions.log',level=logging.DEBUG)
+    import traceback
+    logging.info(strftime('%Y-%m-%d %H:%M: ') + msg + ': stack dump:' + traceback.format_exc())
 
 def update_btcavg_markets():
 	import simplejson
@@ -21,20 +29,14 @@ def update_btcavg_markets():
 	import httplib
 
 	request = urllib2.Request('https://api.bitcoinaverage.com/ticker/all')
-	try:
-		response = urllib2.urlopen(request, timeout=30)
-	except urllib2.HTTPError, e:
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': update_btcavg_markets() HTTPError = ' + str(e.reason))
-		return False
+
+    try:
+		response = urllib2.urlopen(request, timeout=1)
 	except urllib2.URLError, e:
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': update_btcavg_markets() URLError = ' + str(e.reason))
-		return False
-	except httplib.HTTPException, e:
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': update_btcavg_markets() HTTPException = ' + str(e.reason))
+        log('update_btcavg_markets() URLError = ' + str(e.reason))
 		return False
 	except Exception:
-		import traceback
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': update_btcavg_markets() generic exception: ' + traceback.format_exc())
+        log_exception('update_btcavg_markets')
 		return False
 
 	data = simplejson.load(response)
@@ -62,21 +64,15 @@ def update_btccharts_markets():
 	import httplib
 
 	request = urllib2.Request('http://api.bitcoincharts.com/v1/markets.json')
-	try:
-		response = urllib2.urlopen(request, timeout=30)
-	except urllib2.HTTPError, e:
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': update_btccharts_markets() HTTPError = ' + str(e.reason))
-		return False
-	except urllib2.URLError, e:
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': update_btccharts_markets() URLError = ' + str(e.reason))  
-		return False
-	except httplib.HTTPException, e:
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': update_btccharts_markets() HTTPException = ' + str(e.reason))
-		return False
-	except Exception:
-		import traceback
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': update_btccharts_markets() generic exception: ' + traceback.format_exc())    
-		return False
+
+    try:
+		response = urllib2.urlopen(request, timeout=1)
+    except urllib2.URLError, e:
+        log('update_btccharts_markets() URLError = ' + str(e.reason))
+        return False
+    except Exception:
+        log_exception('update_btccharts_markets')
+        return False
 
 	data = simplejson.load(response)
 	client = pymongo.MongoClient('localhost',27017)
@@ -91,25 +87,6 @@ def update_btccharts_markets():
 
 	return True
 
-def create_markets_json():
-	import simplejson
-	import json
-	import urllib2
-	url = urllib2.Request('http://api.bitcoincharts.com/v1/markets.json')
-	opener = urllib2.build_opener()
-	f = opener.open(url)
-	data = simplejson.load(f)
-	prices = [[0 for x in xrange(2)] for x in xrange(len(data))]
-	index = 0
-	for (i, item) in enumerate(data):
-		if item['avg'] > 0 and item['close'] is not None:	
-			prices[index] = [item['symbol'], int(item['close'])]
-			index = index + 1
-		else:
-			del prices[index]
-	with open('/var/www/bitvisual/data/markets', 'w') as outfile:
-		json.dump(prices,outfile)
-
 def read_raw_btccharts_csv(f):
     # reads csv format: [unixtime, price, amount]
 	# returns csv format: [date (datetime) price amount]
@@ -117,27 +94,19 @@ def read_raw_btccharts_csv(f):
 	import httplib
     
 	try:
-		response = urllib2.urlopen(f, timeout=30)
-	except urllib2.HTTPError, e:
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': read_raw_btccharts_csv() HTTPError = ' + str(e.reason))
-		return pd.DataFrame([])
+		response = urllib2.urlopen(f, timeout=1)
 	except urllib2.URLError, e:
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': read_raw_btccharts_csv() URLError = ' + str(e.reason))
-		return pd.DataFrame([])
-	except httplib.HTTPException, e:
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': read_raw_btccharts_csv() HTTPException = ' + str(e.reason))
+        log('read_raw_btccharts_csv(): URLError: ' + str(e.reason))
 		return pd.DataFrame([])
 	except Exception:
-		import traceback
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': read_raw_btccharts_csv() generic exception: ' + traceback.format_exc())
+        log_exception('read_raw_btccharts_csv()')
 		return pd.DataFrame([])
 
 	try:
 		df = pd.read_csv(response, header=None, index_col=0, error_bad_lines=False)
 	except Exception:
-		import traceback
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': read_raw_btccharts_csv() read_csv(): url fail: ' + f + '. Raised generic exception: ' + traceback.format_exc())
-		return pd.DataFrame([])
+        log_exception('read_raw_btccharts_csv(): read_csv():');
+        return pd.DataFrame([])
 
 	df.columns = ['price','amount']
 	df.index = pd.to_datetime(df.index,unit='s') 
@@ -151,15 +120,9 @@ def read_raw_btcavg_csv(f):
 	import httplib
 
 	try:
-		response = urllib2.urlopen(f, timeout=30)
-	except urllib2.HTTPError, e:
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': read_raw_btcavg_csv() HTTPError = ' + str(e.reason))
-		return pd.DataFrame([])
+		response = urllib2.urlopen(f, timeout=1)
 	except urllib2.URLError, e:
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': read_raw_btcavg_csv() URLError = ' + str(e.reason))
-		return pd.DataFrame([])
-	except httplib.HTTPException, e:
-		logging.info(strftime('%Y-%m-%d %H:%M') + ': read_raw_btcavg_csv() HTTPException = ' + str(e.reason))
+        log('read_raw_btcavg_csv() URLError: ' + str(e.reason))
 		return pd.DataFrame([])
 
 	df = pd.read_csv(response,index_col=0)
@@ -179,7 +142,7 @@ def create_db_collection(symbol, df):
 	db.create_collection(symbol)
 	db[symbol].insert(dlist)
 	db[symbol].ensure_index('date')
-	logging.info(strftime('%Y-%m-%d %H:%M') + ': created collection ' + symbol + ' with ' + str(len(df)) + ' records')
+    log('created collection ' + symbol + ' with ' + str(len(df)) + ' records')
 
 def process_raw_csv(df, has_volume):
 	# reads CSV from with format [datetime price amount]
@@ -222,7 +185,7 @@ def update_trades(symbol, source):
 		currency = symbol[len(symbol)-3:]
 		url = 'https://api.bitcoinaverage.com/history/' + currency + '/per_hour_monthly_sliding_window.csv'
 		df = read_raw_btcavg_csv(url)
-		if df.empty:
+        if df.empty:
 			return 0
 		else:
 			db[symbol].remove({'date':last_timestamp})
@@ -231,7 +194,7 @@ def update_trades(symbol, source):
 			df = df[current_index:] # remove all records prior to last_timestamp
 
 	if len(df) > 1000:
-		logging.info(strftime('%Y-%m-%d %H:%M') + symbol + ' update failed because > 1000 new trades')  
+        log('update failed. > 1000 trades. something might be wrong.')
 	else:
 		dlist = df.to_dict('records')
 		db[symbol].insert(dlist)
