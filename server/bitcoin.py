@@ -38,17 +38,18 @@ def mongo_connect():
 
 def mongo_disconnect(db):
 	return db.connection.close()
-
-def update_btcavg_markets(db):
+	
+def update_markets(db, url, source):
 	import simplejson
 	import urllib2
 
-	request = urllib2.Request('https://api.bitcoinaverage.com/ticker/all')
+	#request = urllib2.Request('http://api.bitcoincharts.com/v1/markets.json')
+	#request = urllib2.Request('https://api.bitcoinaverage.com/ticker/all')
 
 	try:
-		response = urllib2.urlopen(request, timeout=1)
+		response = urllib2.urlopen(url, timeout=1)
 	except urllib2.URLError, e:
-		log('update_btcavg_markets() URLError = ' + str(e.reason))
+		log('URLError opening ' + url + ': ' + str(e.reason))
 		return False
 	except Exception:
 		log_exception('update_btcavg_markets')
@@ -56,43 +57,29 @@ def update_btcavg_markets(db):
 
 	data = simplejson.load(response)
 	mongo_collections = db.collection_names()
-	# iteritems() converts dict to array with [0] element key and [1] element is value
-	for item in data.iteritems():
-		symbol = 'btcavg' + item[0]
-		if symbol in mongo_collections:
-			timestamp = item[1]['timestamp']
-			# convert datetime "Sat, 31 May 2014 20:36:56 -0000" to timestamp
-			timestamp = timestamp[:-6]
-			import calendar
-			timestamp = calendar.timegm(time.strptime(timestamp, '%a, %d %b %Y %H:%M:%S'))
-			db['markets'].update({'symbol':symbol}, { '$set': {'time':timestamp, 'close':int(item[1]['last'])}}, True)
-
-	return True
-
-def update_btccharts_markets(db):
-	import simplejson
-	import urllib2
-
-	request = urllib2.Request('http://api.bitcoincharts.com/v1/markets.json')
-
-	try:
-		response = urllib2.urlopen(request, timeout=1)
-	except urllib2.URLError, e:
-		log('update_btccharts_markets() URLError = ' + str(e.reason))
-		return False
-	except Exception:
-		log_exception('update_btccharts_markets')
-		return False
-
-	data = simplejson.load(response)
-	mongo_collections = db.collection_names()
-
-	for (i, item) in enumerate(data):
-		symbol = item['symbol']
-		if symbol in mongo_collections and item['avg'] > 0 and item['close'] is not None:
-			# update symbol collection, insert new document if symbol doesn't exist (upsert)
-			db['markets'].update({'symbol':symbol}, { '$set': {'time':item['latest_trade'], 'close':int(item['close'])}}, True)
-
+	
+	if source == 'btc_avg':
+		for item in data.iteritems():
+			symbol = 'btcavg' + item[0]
+			if symbol in mongo_collections:
+				timestamp = item[1]['timestamp']
+				# convert datetime "Sat, 31 May 2014 20:36:56 -0000" to timestamp
+				timestamp = timestamp[:-6]
+				import calendar
+				timestamp = calendar.timegm(time.strptime(timestamp, '%a, %d %b %Y %H:%M:%S'))
+				query = {'symbol':symbol}, { '$set': {'time':timestamp, 'close':int(item[1]['last'])}}
+				db['markets'].update(query, True)
+	
+	elif source == 'btc_charts':
+		for (i, item) in enumerate(data):
+			symbol = item['symbol']
+			if symbol in mongo_collections and item['avg'] > 0 
+			and item['close'] is not None:
+				# update symbol collection, insert new document if symbol doesn't exist (upsert)
+				query = {'symbol':symbol}, 
+					{ '$set': {'time':item['latest_trade'], 'close':int(item['close'])}}
+				db['markets'].update(query, True)
+	
 	return True
 
 def read_raw_btccharts_csv(f):
@@ -103,16 +90,16 @@ def read_raw_btccharts_csv(f):
 	try:
 		response = urllib2.urlopen(f, timeout=1)
 	except urllib2.URLError, e:
-		log('read_raw_btccharts_csv(): URLError: ' + str(e.reason))
+		log('URLError opening ' + f + ': ' + str(e.reason))
 		return pd.DataFrame([])
 	except Exception:
-		log_exception('read_raw_btccharts_csv()')
+		log_exception('Exception opening ' + f)
 		return pd.DataFrame([])
 
 	try:
 		df = pd.read_csv(response, header=None, index_col=0, error_bad_lines=False)
 	except Exception:
-		log_exception('read_raw_btccharts_csv(): read_csv():')
+		log_exception('Could not parse CSV from ' + f)
 		return pd.DataFrame([])
 
 	df.columns = ['price','amount']
@@ -128,10 +115,15 @@ def read_raw_btcavg_csv(f):
 	try:
 		response = urllib2.urlopen(f, timeout=1)
 	except urllib2.URLError, e:
-		log('read_raw_btcavg_csv() URLError: ' + str(e.reason))
+		log('URLError opening ' + f + ': ' + str(e.reason))
 		return pd.DataFrame([])
-
-	df = pd.read_csv(response,index_col=0)
+	
+	try:
+		df = pd.read_csv(response,index_col=0, error_bad_lines=False)
+	except Exception:
+		log_exception('Could not parse CSV from ' + f)
+		return pd.DataFrame([])
+		
 	df = df.drop('high',axis=1)
 	df = df.drop('low',axis=1)
 #	df.columns = ['price', 'amount']
