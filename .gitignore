@@ -1,6 +1,7 @@
 .DS_Store
 *xcuserdata/
 *.pyc
+*.xcodeproj
 *build/
 *.mode1v3
 *.pbxuser
