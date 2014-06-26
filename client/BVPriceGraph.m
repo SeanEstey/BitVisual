@@ -31,6 +31,7 @@ NSTimeInterval t2;
 @synthesize priceDeltaLabel, centeredDateLabel, centeredDate, centeredDateLabelFormat;
 @synthesize lastRightEdgeUpdate;
 @synthesize statusCaptionLabel, retryConnectionButton;
+@synthesize getGraphURL;
 
 -(id)initWithFrame:(CGRect) frame
 {
@@ -45,6 +46,8 @@ NSTimeInterval t2;
         bWaitingForRightBufferData = NO;
         bWaitingForDisplayData = NO;
         bMostRecentData = NO;
+        
+        getGraphURL = @"http://www.seanestey.ca/bitvisual/python/price_history.py?symbol=%@&start=%i&end=%i&freq=%@";
         
         secondsInPeriod = [NSArray arrayWithObjects:
                            [NSNumber numberWithInt:86400],
@@ -63,15 +66,22 @@ NSTimeInterval t2;
         graphView.userInteractionEnabled = TRUE;
         [self addSubview:graphView];
       
-        statusCaptionLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, self.bounds.size.width, 50)];
+        statusCaptionLabel = [[UILabel alloc]initWithFrame:CGRectMake(
+                              0,
+                              0,
+                              self.bounds.size.width,
+                              50)];
         statusCaptionLabel.textColor = [UIColor whiteColor];
         statusCaptionLabel.numberOfLines = 2;
-    //    statusCaptionLabel.adjustsFontSizeToFitWidth = YES;
         statusCaptionLabel.clipsToBounds = YES;
         statusCaptionLabel.textAlignment = NSTextAlignmentCenter;
         [self addSubview:statusCaptionLabel];
 
-        centeredDateLabel = [[UILabel alloc]initWithFrame:CGRectMake(self.bounds.size.width/2.0, self.bounds.size.height-70, 150, 50)];
+        centeredDateLabel = [[UILabel alloc]initWithFrame:CGRectMake(
+                             self.bounds.size.width/2.0,
+                             self.bounds.size.height-70,
+                             150,
+                             50)];
 	    centeredDateLabel.text = @"";
 	    centeredDateLabel.font = [UIFont systemFontOfSize:22];
 	    centeredDateLabel.numberOfLines = 1;
@@ -91,11 +101,15 @@ NSTimeInterval t2;
         scrollView.contentSize=CGSizeMake(SCROLL_VIEW_WIDTH,300);
         [self addSubview:scrollView];
         
-        UITapGestureRecognizer *doubleTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+        UITapGestureRecognizer *doubleTapGestureRecognizer = [[UITapGestureRecognizer alloc]
+                                                              initWithTarget:self
+                                                              action:@selector(doubleTap:)];
         doubleTapGestureRecognizer.numberOfTapsRequired = 2;
         [scrollView addGestureRecognizer:doubleTapGestureRecognizer];
         
-        UITapGestureRecognizer *singleTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTap:)];
+        UITapGestureRecognizer *singleTapGestureRecognizer = [[UITapGestureRecognizer alloc]
+                                                              initWithTarget:self
+                                                              action:@selector(singleTap:)];
         singleTapGestureRecognizer.numberOfTapsRequired = 1;
         [singleTapGestureRecognizer requireGestureRecognizerToFail:doubleTapGestureRecognizer];
         [scrollView addGestureRecognizer:singleTapGestureRecognizer];
@@ -117,7 +131,11 @@ NSTimeInterval t2;
  
         [centeredDateLabelAnimation setDelegate:self];
   	
-  		vertexAnnotations = [[NSArray alloc] initWithObjects:[VertexAnnotation alloc], [VertexAnnotation alloc], [VertexAnnotation alloc], nil];
+  		vertexAnnotations = [[NSArray alloc] initWithObjects:
+                             [VertexAnnotation alloc],
+                             [VertexAnnotation alloc],
+                             [VertexAnnotation alloc],
+                             nil];
   		
         for(int i=0; i<[vertexAnnotations count]; i++)
     	{
@@ -177,11 +195,9 @@ NSTimeInterval t2;
             [graphView.layer insertSublayer:horizontal_line atIndex:0];
             [horizontalLineLayers addObject:horizontal_line];
         }
-
 	}
     
-    
-    	gradientLayer = [CAGradientLayer layer];
+    gradientLayer = [CAGradientLayer layer];
 	return self;
 }
 
@@ -210,7 +226,6 @@ NSTimeInterval t2;
         ((CAShapeLayer*) horizontalLineLayers[i]).strokeColor = themeColor.CGColor;
     }
     
-    
     NSMutableArray *colors = [NSMutableArray array];
     [colors addObject:(id)[UIColor colorWithRed:0.0 green:0.6 blue:0.8 alpha:1.0].CGColor];
     [colors addObject:(id)[UIColor colorWithRed:0.0 green:0.6 blue:0.8 alpha:1.0].CGColor];
@@ -222,16 +237,17 @@ NSTimeInterval t2;
 
 -(void)queryStart:(int)start end:(int)end
 {
-    NSString* connectionURL = [NSString stringWithFormat:@"http://www.seanestey.ca/bitvisual/python/price_history.py?symbol=%@&start=%i&end=%i&freq=%@", symbol, start, end, frequency_symbol];
- //   NSLog(@"Querying %@", connectionURL);
+    NSString* connectionURL = [NSString stringWithFormat:getGraphURL, symbol, start, end, frequency_symbol];
     
     t1 = [[NSDate date] timeIntervalSince1970];
-    connection = [[NSURLConnection alloc] initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:connectionURL]] delegate:self startImmediately:NO];
+    connection = [[NSURLConnection alloc] initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:connectionURL]]
+                  delegate:self
+                  startImmediately:NO];
     
     // Very important!!
-    [connection scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+    [connection scheduleInRunLoop:[NSRunLoop currentRunLoop]
+                forMode:NSRunLoopCommonModes];
     [connection start];
-    
 }
 
 -(void)findMinMaxIndices
@@ -280,7 +296,10 @@ NSTimeInterval t2;
         i++;
     }
     
-    minMaxIndices = [[NSArray alloc] initWithObjects:[NSNumber numberWithLong:min_ind], [NSNumber numberWithLong:max_ind], nil];
+    minMaxIndices = [[NSArray alloc] initWithObjects:
+                     [NSNumber numberWithLong:min_ind],
+                     [NSNumber numberWithLong:max_ind],
+                     nil];
     
     ((VertexAnnotation*)vertexAnnotations[MIN_VERTEX]).vertex_index = (int)min_ind;
     ((VertexAnnotation*)vertexAnnotations[MAX_VERTEX]).vertex_index = (int)max_ind;
@@ -305,20 +324,15 @@ NSTimeInterval t2;
     
     statusCaptionLabel.hidden = true;
     
-    
-    // If currently displaying right edge of graph and if bMostRecentData == true,
-    // choose bWaitingForDisplayData path and insert NSNull to right end of Dates/Prices arrays
-
-    
-    
-    
-    
     if(bWaitingForDisplayData == YES)
     {
         prices = [[NSMutableArray alloc] init];
         dates = [[NSMutableArray alloc] init];
         
-        NSLog(@"Received %lu display/buffer records (%.1fkb) in %.0fms", (unsigned long)[priceData count], [connectionData length]/1000.0f, delta);
+        NSLog(@"Received %lu display/buffer records (%.1fkb) in %.0fms",
+              (unsigned long)[priceData count],
+              [connectionData length]/1000.0f,
+              delta);
         
         int i=0;
         for(id item in priceData)
@@ -330,29 +344,34 @@ NSTimeInterval t2;
         
 
         unsigned int left_edge_timestamp = [dateData[0] timeIntervalSince1970];
-        unsigned int left_buffer_length = (queried_display_start_timestamp - left_edge_timestamp) / frequency;
-        unsigned int display_length = [(NSNumber*)secondsInPeriod[period] intValue] / frequency;
+        unsigned int left_buffer_length = (queried_display_start_timestamp - left_edge_timestamp)
+                                          / frequency;
+        unsigned int display_length = [(NSNumber*)secondsInPeriod[period] intValue]
+                                        / frequency;
         
         // Verify integrity of data
-        
-        // We know we're at right edge of graph if the last timestamp returned is < (queried_display_end_timestamp - frequency)
+        // We know we're at right edge of graph if the last timestamp
+        // returned is < (queried_display_end_timestamp - frequency)
         
         if([(NSDate*)dateData[0] timeIntervalSince1970] > queried_display_start_timestamp)
         {
             if([dateData count] < display_length)
                 self.displayRange = NSMakeRange(0, [dateData count]);
+            // Pushing against left edge of graph. No left buffer + adjust display range.
             else
-                self.displayRange = NSMakeRange(0, display_length); // Pushing against left edge of graph. No left buffer + adjust display range.
+                self.displayRange = NSMakeRange(0, display_length);
         }
         else if([(NSDate*)dateData[[dateData count]-1] timeIntervalSince1970] < (queried_display_end_timestamp-frequency))
         {
             if([dateData count] < display_length)
                 self.displayRange = NSMakeRange(0, [dateData count]);
+            // Pushing against right edge of graph. No right buffer + adjust display range.
             else
-                self.displayRange = NSMakeRange([dates count]-display_length, display_length);// Pushing against right edge of graph. No right buffer + adjust display range.
-            
-            [dates insertObject:[NSNull null] atIndex:[dates count]];
-            [prices insertObject:[NSNull null] atIndex:[prices count]];
+                self.displayRange = NSMakeRange([dates count]-display_length, display_length);
+            [dates insertObject:[NSNull null]
+                    atIndex:[dates count]];
+            [prices insertObject:[NSNull null]
+                    atIndex:[prices count]];
             lastRightEdgeUpdate = [NSDate date];
         }
         else
@@ -365,7 +384,10 @@ NSTimeInterval t2;
     }
     else if(bWaitingForLeftBufferData == YES)
     {
-        NSLog(@"Received %lu left buffer records (%.1fkb) in %.0fms", (unsigned long)[priceData count], [connectionData length]/1000.0f, delta);
+        NSLog(@"Received %lu left buffer records (%.1fkb) in %.0fms",
+              (unsigned long)[priceData count],
+              [connectionData length]/1000.0f,
+              delta);
         int i=0;
         int timestamp = queried_left_buffer_timestamp;
         for(id item in priceData)
@@ -393,9 +415,13 @@ NSTimeInterval t2;
     }
     else if(bWaitingForRightBufferData == YES)
     {
-        NSLog(@"Received %lu right buffer (%.1fkb) in %.0fms.", (unsigned long)[priceData count], [connectionData length]/1000.0f, delta);
+        NSLog(@"Received %lu right buffer (%.1fkb) in %.0fms.",
+              (unsigned long)[priceData count],
+              [connectionData length]/1000.0f,
+              delta);
         
-        // May be at right edge of graph. Check for NSNull at end of Dates/Prices arrays, insert new data inbetween
+        // May be at right edge of graph. Check for NSNull at end of
+        // Dates/Prices arrays, insert new data inbetween
         if([(NSDate*)dateData[[dateData count]-1] timeIntervalSince1970] < queried_right_buffer_timestamp)
         {
             // Approaching right edge of graph.
@@ -476,7 +502,13 @@ NSTimeInterval t2;
 
     NSCalendar *calendar = [NSCalendar currentCalendar];
     NSDate* now = [NSDate date];
-    NSDateComponents *comps = [calendar components: NSEraCalendarUnit|NSYearCalendarUnit| NSMonthCalendarUnit|NSDayCalendarUnit|NSHourCalendarUnit fromDate:now];
+    NSDateComponents *comps = [calendar components:
+                               NSEraCalendarUnit |
+                               NSYearCalendarUnit|
+                               NSMonthCalendarUnit |
+                               NSDayCalendarUnit |
+                               NSHourCalendarUnit
+                               fromDate:now];
     
     if(frequency == 3600)
         [comps setHour: [comps hour]+1];  // Possible bug: may need to check if last hour of day
@@ -486,9 +518,12 @@ NSTimeInterval t2;
     NSDate* roundedDate = [calendar dateFromComponents:comps];
     
     queried_display_end_timestamp = [roundedDate timeIntervalSince1970];
-    queried_display_start_timestamp = queried_display_end_timestamp - [(NSNumber*)secondsInPeriod[period] intValue];
+    queried_display_start_timestamp = queried_display_end_timestamp -
+                                      [(NSNumber*)secondsInPeriod[period] intValue];
     
-    queried_left_buffer_timestamp = queried_display_start_timestamp - ([(NSNumber*)secondsInPeriod[period] intValue] * MAX_BUFFER_SCREEN_LENGTH);
+    queried_left_buffer_timestamp = queried_display_start_timestamp
+                                    - ([(NSNumber*)secondsInPeriod[period] intValue]
+                                    * MAX_BUFFER_SCREEN_LENGTH);
     queried_right_buffer_timestamp = queried_display_end_timestamp;
     
     [self queryStart:queried_left_buffer_timestamp end:queried_right_buffer_timestamp];
@@ -503,16 +538,15 @@ NSTimeInterval t2;
         return;
     }
     
-    // If right end of displayRange is NSNull, then use setSymbolWithPeriod
-    if([dates[displayRange.location + displayRange.length] isEqual:[NSNull null]])
-    {
-        NSLog(@"Right edge of graph. changePeriodTo calling setSymbol instead");
-        [self setSymbol:self.symbol withPeriod:p];
-        return;
-    }
+    if(displayRange.location + displayRange.length == [dates count]-1)
+        if([dates[[dates count]-1] isEqual:[NSNull null]])
+        {
+            NSLog(@"Right edge of graph. changePeriodTo calling setSymbol instead");
+            [self setSymbol:self.symbol withPeriod:p];
+            return;
+        }
     
     [self clear];
-    
     
     period = p;
     
@@ -531,13 +565,18 @@ NSTimeInterval t2;
     }
     
     int seconds_in_period = [(NSNumber*)secondsInPeriod[period] intValue];
-    queried_display_start_timestamp = [midDate timeIntervalSince1970] - (seconds_in_period / 2);
-    queried_display_end_timestamp = [midDate timeIntervalSince1970] + (seconds_in_period / 2);
+    queried_display_start_timestamp = [midDate timeIntervalSince1970]
+                                       - (seconds_in_period / 2);
+    queried_display_end_timestamp = [midDate timeIntervalSince1970]
+                                    + (seconds_in_period / 2);
     
-    queried_left_buffer_timestamp = queried_display_start_timestamp - ([(NSNumber*)secondsInPeriod[period] intValue] * MAX_BUFFER_SCREEN_LENGTH);
-    queried_right_buffer_timestamp = queried_display_end_timestamp + ([(NSNumber*)secondsInPeriod[period] intValue] * MAX_BUFFER_SCREEN_LENGTH);
+    queried_left_buffer_timestamp = queried_display_start_timestamp
+                                    - ([(NSNumber*)secondsInPeriod[period] intValue] * MAX_BUFFER_SCREEN_LENGTH);
+    queried_right_buffer_timestamp = queried_display_end_timestamp
+                                    + ([(NSNumber*)secondsInPeriod[period] intValue] * MAX_BUFFER_SCREEN_LENGTH);
     
-    [self queryStart:queried_left_buffer_timestamp end:queried_right_buffer_timestamp];
+    [self queryStart:queried_left_buffer_timestamp
+          end:queried_right_buffer_timestamp];
 
     bWaitingForDisplayData = YES;
     bWaitingForLeftBufferData = NO;
@@ -546,9 +585,7 @@ NSTimeInterval t2;
 
 -(void)load
 {
- 
     [self addSubview:scrollView];
-    
     
     last_offset_x = 0.0f;
 	fraction_offset_x = 0.0f;
@@ -683,13 +720,21 @@ NSTimeInterval t2;
         float x = start_x + (float)(va.vertex_index - displayRange.location)*x_spacing;
         float y = start_y + ((max_price - [prices[va.vertex_index] floatValue]) / spread)* maxLineHeight;
         
-        CGRect dotFrame = CGRectMake(x - va.dot_radius, y - va.dot_radius, va.dot_radius*2, va.dot_radius*2);
+        CGRect dotFrame = CGRectMake(
+                            x - va.dot_radius,
+                            y - va.dot_radius,
+                            va.dot_radius*2,
+                            va.dot_radius*2);
         if(dotFrame.origin.x < 0)
             dotFrame.origin.x = 0;
         
         va.caption.string = [self getStrAnnotationFor:va.vertex_index newline:TRUE];
         CGSize strSize = [va.caption.string sizeWithAttributes:_annotationAttributes];
-        CGRect strFrame = CGRectMake(x - strSize.width/2, y + va.y_vertex_offset, strSize.width + 5, strSize.height + 5);
+        CGRect strFrame = CGRectMake(
+                            x - strSize.width/2,
+                            y + va.y_vertex_offset,
+                            strSize.width + 5,
+                            strSize.height + 5);
         if(strFrame.origin.x - 5 < 0)
             strFrame.origin.x = 5;
         else if(strFrame.origin.x + strFrame.size.width + 5 > graphSize.width)
@@ -699,9 +744,11 @@ NSTimeInterval t2;
         [p moveToPoint:CGPointMake(x,y)];
         
         if(va.line_connects_at_top)
-            [p addLineToPoint:CGPointMake(strFrame.origin.x + strFrame.size.width/2, strFrame.origin.y)];
+            [p addLineToPoint:CGPointMake(strFrame.origin.x + strFrame.size.width/2,
+                                          strFrame.origin.y)];
         else
-            [p addLineToPoint:CGPointMake(strFrame.origin.x + strFrame.size.width/2, strFrame.origin.y + strFrame.size.height)];
+            [p addLineToPoint:CGPointMake(strFrame.origin.x + strFrame.size.width/2,
+                                          strFrame.origin.y + strFrame.size.height)];
         va.line.path = p.CGPath;
         
         if(!va.animated)
@@ -742,7 +789,8 @@ NSTimeInterval t2;
     
     int display_index = datapointIndex - displayRange.location;
     
-    CGPoint p = CGPointMake(x + (display_index * x_spacing), start_y + ((max_price - [prices[datapointIndex] floatValue]) / spread)* maxLineHeight);
+    CGPoint p = CGPointMake(x + (display_index * x_spacing),
+                            start_y + ((max_price - [prices[datapointIndex] floatValue]) / spread)* maxLineHeight);
 
     return p;
 }
@@ -752,7 +800,6 @@ NSTimeInterval t2;
     if([prices count] == 0 || [dates count] == 0)
         return;
     
-    // CRASH BUG
     @try
     {
         [self drawHorizontalGraphLines];
@@ -766,11 +813,6 @@ NSTimeInterval t2;
     {
         NSLog(@"Exception found in priceGraph:Draw! %@", e);
     }
-
-    
-  
- //   [self updatePriceDelta];
-
 }
 
 -(void)drawHorizontalGraphLines
@@ -791,7 +833,6 @@ NSTimeInterval t2;
     }
     
     ((CAShapeLayer*)horizontalLineLayers[num_horizontal_graphlines-1]).opacity = 1;
-
 }
 
 
@@ -825,20 +866,34 @@ NSTimeInterval t2;
         [CATransaction begin];
         [CATransaction setDisableActions:YES];
         [centeredDateLabel sizeToFit];
-        centeredDateLabel.frame = CGRectMake(r.size.width*-1, r.origin.y, r.size.width, r.size.height);
+        centeredDateLabel.frame = CGRectMake(
+                                  r.size.width*-1,
+                                  r.origin.y,
+                                  r.size.width,
+                                  r.size.height);
         [centeredDateLabel.layer removeAllAnimations];
         centeredDateLabel.text = [centeredDateLabelFormat stringFromDate:centeredDate];
         [CATransaction commit];
         
-        centeredDateLabelAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake(r.origin.x,r.origin.y)];
-        centeredDateLabelAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(self.bounds.size.width/2.0 - r.size.width/2,r.origin.y)];
-        [centeredDateLabelAnimation setValue:@"centeredDateScrollCenterAnimation" forKey:@"id"];
-        [centeredDateLabel.layer addAnimation:centeredDateLabelAnimation forKey:@"centeredDateScrollCenterAnimation"];
+        centeredDateLabelAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake(
+                                                r.origin.x,
+                                                r.origin.y)];
+        centeredDateLabelAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(
+                                              self.bounds.size.width/2.0 - r.size.width/2,
+                                              r.origin.y)];
+        [centeredDateLabelAnimation setValue:@"centeredDateScrollCenterAnimation"
+                                    forKey:@"id"];
+        [centeredDateLabel.layer addAnimation:centeredDateLabelAnimation
+                                 forKey:@"centeredDateScrollCenterAnimation"];
         
         [CATransaction begin];
         [CATransaction setDisableActions:YES];
         [centeredDateLabel sizeToFit];
-        centeredDateLabel.frame = CGRectMake(self.bounds.size.width/2.0 - r.size.width/2, r.origin.y, r.size.width, r.size.height);
+        centeredDateLabel.frame = CGRectMake(
+                                  self.bounds.size.width/2.0 - r.size.width/2,
+                                  r.origin.y,
+                                  r.size.width,
+                                  r.size.height);
         [CATransaction commit];
     }
     else if([[animation valueForKey:@"id"] isEqual:@"centeredDateScrollLeftAnimation"])
@@ -853,15 +908,25 @@ NSTimeInterval t2;
         centeredDateLabel.text = [centeredDateLabelFormat stringFromDate:centeredDate];
         [CATransaction commit];
         
-        centeredDateLabelAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake(r.origin.x,r.origin.y)];
-        centeredDateLabelAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(self.bounds.size.width/2.0 - r.size.width/2,r.origin.y)];
-        [centeredDateLabelAnimation setValue:@"centeredDateScrollCenterAnimation" forKey:@"id"];
-        [centeredDateLabel.layer addAnimation:centeredDateLabelAnimation forKey:@"centeredDateScrollCenterAnimation"];
+        centeredDateLabelAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake(
+                                               r.origin.x,
+                                               r.origin.y)];
+        centeredDateLabelAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(
+                                             self.bounds.size.width/2.0 - r.size.width/2,
+                                             r.origin.y)];
+        [centeredDateLabelAnimation setValue:@"centeredDateScrollCenterAnimation"
+                                    forKey:@"id"];
+        [centeredDateLabel.layer addAnimation:centeredDateLabelAnimation
+                                 forKey:@"centeredDateScrollCenterAnimation"];
         
         [CATransaction begin];
         [CATransaction setDisableActions:YES];
         [centeredDateLabel sizeToFit];
-        centeredDateLabel.frame = CGRectMake(self.bounds.size.width/2.0 - r.size.width/2, r.origin.y, r.size.width, r.size.height);
+        centeredDateLabel.frame = CGRectMake(
+                                  self.bounds.size.width/2.0 - r.size.width/2,
+                                  r.origin.y,
+                                  r.size.width,
+                                  r.size.height);
         [CATransaction commit];
     }
     else if([[animation valueForKey:@"id"] isEqual:@"centeredDateScrollCenterAnimation"])
@@ -894,7 +959,9 @@ NSTimeInterval t2;
         
         for(NSDate* hourlyDate in displayDates)
     	{
-            NSDateComponents *calendarDay = [[NSCalendar currentCalendar] components:NSCalendarUnitHour fromDate:hourlyDate];
+            NSDateComponents *calendarDay = [[NSCalendar currentCalendar]
+                                             components:NSCalendarUnitHour
+                                             fromDate:hourlyDate];
       		if([calendarDay hour] % 4 < 1)
             {
 				CATextLayer* layer = [CATextLayer layer];
@@ -974,7 +1041,9 @@ NSTimeInterval t2;
 		int sub_index = 0;   		
     	for(NSDate* dailyDate in displayDates)
     	{
-    		NSDateComponents *calendarDay = [[NSCalendar currentCalendar] components:NSCalendarUnitDay fromDate:dailyDate];
+    		NSDateComponents *calendarDay = [[NSCalendar currentCalendar]
+                                            components:NSCalendarUnitDay
+                                            fromDate:dailyDate];
             if([calendarDay day] % 3 < 1)
     		{
 				CATextLayer* layer = [CATextLayer layer];
@@ -999,7 +1068,9 @@ NSTimeInterval t2;
 		int sub_index = 0;
     	for(NSDate* dailyDate in displayDates)
     	{
-    		NSDateComponents *calendarDay = [[NSCalendar currentCalendar] components:NSCalendarUnitDay fromDate:dailyDate];
+    		NSDateComponents *calendarDay = [[NSCalendar currentCalendar]
+                                            components:NSCalendarUnitDay
+                                            fromDate:dailyDate];
             if([calendarDay day] == 1)
     		{
 				CATextLayer* layer = [CATextLayer layer];
@@ -1025,7 +1096,9 @@ NSTimeInterval t2;
 		int sub_index = 0;
     	for(NSDate* dailyDate in displayDates)
     	{
-    		NSDateComponents *calendarDay = [[NSCalendar currentCalendar] components:NSCalendarUnitDay fromDate:dailyDate];
+    		NSDateComponents *calendarDay = [[NSCalendar currentCalendar]
+                                             components:NSCalendarUnitDay
+                                             fromDate:dailyDate];
             if([calendarDay day] == 1)
     		{
 				CATextLayer* layer = [CATextLayer layer];
@@ -1067,7 +1140,9 @@ NSTimeInterval t2;
     NSString* currency = [self.symbol substringFromIndex: [self.symbol length] - 3];
     NSString* unicode = (NSString*)currencyUnicodes[currency];
     
-    NSMutableString* displayStr = [NSMutableString stringWithFormat:@"%@%@ ", unicode, [nf stringFromNumber:(NSNumber*)prices[index]]];
+    NSMutableString* displayStr = [NSMutableString stringWithFormat:@"%@%@ ",
+                                   unicode,
+                                   [nf stringFromNumber:(NSNumber*)prices[index]]];
     
     if(newline)
     {
@@ -1077,8 +1152,12 @@ NSTimeInterval t2;
     NSDate* indexDate = (NSDate*)dates[index];
     NSDate* today =  [NSDate date];
     
-    NSDateComponents *indexDateCal = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:indexDate];
-    NSDateComponents *todayCal = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:today];
+    NSDateComponents *indexDateCal = [[NSCalendar currentCalendar]
+                                      components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear
+                                      fromDate:indexDate];
+    NSDateComponents *todayCal = [[NSCalendar currentCalendar]
+                                  components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear
+                                  fromDate:today];
     
     NSDateFormatter* df = [[NSDateFormatter alloc] init];
     
@@ -1093,23 +1172,22 @@ NSTimeInterval t2;
     	[df setDateFormat:@"LLL d yyyy"];
     	[displayStr appendString:[df stringFromDate:indexDate]];
     }
-    else if([todayCal day] == [indexDateCal day] && [todayCal month] == [indexDateCal month] && [todayCal year] == [indexDateCal year])
+    else if([todayCal day] == [indexDateCal day]
+            && [todayCal month] == [indexDateCal month]
+            && [todayCal year] == [indexDateCal year])
     {
     	[displayStr appendString:@"Today "];
         [df setDateFormat:@"ha"];
         [displayStr appendString:[df stringFromDate:indexDate]];
     }
-    else if(([todayCal day] - [indexDateCal day]) == 1 && [todayCal month] == [indexDateCal month] && [todayCal year] == [indexDateCal year])
+    else if(([todayCal day] - [indexDateCal day]) == 1
+            && [todayCal month] == [indexDateCal month]
+            && [todayCal year] == [indexDateCal year])
     {
     	[displayStr appendString:@"Yday "];
     	[df setDateFormat:@"ha"];
     	[displayStr appendString:[df stringFromDate:indexDate]];
     }
-  //  else if(([todayCal day] - [indexDateCal day]) >= 7 )
-  //  {
-  //      [df setDateFormat:@"LLL d"];
-  //      [displayStr appendString:[df stringFromDate:indexDate]];
-  //  }
     else
     {
 		[displayStr appendString:[df stringFromDate:indexDate]];
@@ -1122,8 +1200,12 @@ NSTimeInterval t2;
 {
     centeredDate = (NSDate*)dates[displayRange.location + displayRange.length/2];
     NSDate* now = [NSDate date];
-    NSDateComponents* nowCal = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:now];
-    NSDateComponents *centeredDateCal = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:centeredDate];
+    NSDateComponents* nowCal = [[NSCalendar currentCalendar]
+                                components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear
+                                fromDate:now];
+    NSDateComponents *centeredDateCal = [[NSCalendar currentCalendar]
+                                         components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear
+                                         fromDate:centeredDate];
     centeredDateLabelFormat = [[NSDateFormatter alloc] init];
     
     if(period == _1D)
@@ -1153,7 +1235,11 @@ NSTimeInterval t2;
     [CATransaction begin];
     [CATransaction setDisableActions:YES];
     [centeredDateLabel sizeToFit];
-    centeredDateLabel.frame = CGRectMake(self.bounds.size.width/2.0 - centeredDateLabel.frame.size.width/2, centeredDateLabel.frame.origin.y, centeredDateLabel.frame.size.width, centeredDateLabel.frame.size.height);
+    centeredDateLabel.frame = CGRectMake(
+                              self.bounds.size.width/2.0 - centeredDateLabel.frame.size.width/2,
+                              centeredDateLabel.frame.origin.y,
+                              centeredDateLabel.frame.size.width,
+                              centeredDateLabel.frame.size.height);
     [CATransaction commit];
 }
 
@@ -1163,9 +1249,13 @@ NSTimeInterval t2;
         return;
     
     NSDate* midDate = (NSDate*)dates[displayRange.location + displayRange.length/2];
-    NSDateComponents *midDateCal = [[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:midDate];
+    NSDateComponents *midDateCal = [[NSCalendar currentCalendar]
+                                    components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear
+                                    fromDate:midDate];
     
-    NSDateComponents* centeredDateCal =[[NSCalendar currentCalendar] components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear fromDate:centeredDate];
+    NSDateComponents* centeredDateCal =[[NSCalendar currentCalendar]
+                                        components:NSCalendarUnitDay | NSCalendarUnitMonth | NSCalendarUnitYear
+                                        fromDate:centeredDate];
     
     bool bSlideRight = NO;
     bool bSlideLeft = NO;
@@ -1217,31 +1307,51 @@ NSTimeInterval t2;
     if(bSlideRight)
     {
         centeredDate = midDate;
-        centeredDateLabelAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake(r.origin.x,r.origin.y)];
-        centeredDateLabelAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(self.bounds.size.width,r.origin.y)];
-        [centeredDateLabelAnimation setValue:@"centeredDateScrollRightAnimation" forKey:@"id"];
-        [centeredDateLabel.layer addAnimation:centeredDateLabelAnimation forKey:@"centeredDateScrollRightAnimation"];
+        centeredDateLabelAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake(
+                                                r.origin.x,
+                                                r.origin.y)];
+        centeredDateLabelAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(
+                                              self.bounds.size.width,
+                                              r.origin.y)];
+        [centeredDateLabelAnimation setValue:@"centeredDateScrollRightAnimation"
+                                    forKey:@"id"];
+        [centeredDateLabel.layer addAnimation:centeredDateLabelAnimation
+                                 forKey:@"centeredDateScrollRightAnimation"];
         b_centered_date_label_is_animating = YES;
         
         [CATransaction begin];
         [CATransaction setDisableActions:YES];
         [centeredDateLabel sizeToFit];
-        centeredDateLabel.frame = CGRectMake(r.size.width*-1, r.origin.y, r.size.width, r.size.height);
+        centeredDateLabel.frame = CGRectMake(
+                                  r.size.width*-1,
+                                  r.origin.y,
+                                  r.size.width,
+                                  r.size.height);
         [CATransaction commit];
     }
     else if(bSlideLeft)
     {
         centeredDate = midDate;
-        centeredDateLabelAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake(r.origin.x,r.origin.y)];
-        centeredDateLabelAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(r.size.width*-1,r.origin.y)];
-        [centeredDateLabelAnimation setValue:@"centeredDateScrollLeftAnimation" forKey:@"id"];
-        [centeredDateLabel.layer addAnimation:centeredDateLabelAnimation forKey:@"centeredDateScrollLeftAnimation"];
+        centeredDateLabelAnimation.fromValue = [NSValue valueWithCGPoint:CGPointMake(
+                                                r.origin.x,
+                                                r.origin.y)];
+        centeredDateLabelAnimation.toValue = [NSValue valueWithCGPoint:CGPointMake(
+                                              r.size.width*-1,
+                                              r.origin.y)];
+        [centeredDateLabelAnimation setValue:@"centeredDateScrollLeftAnimation"
+                                    forKey:@"id"];
+        [centeredDateLabel.layer addAnimation:centeredDateLabelAnimation
+                                 forKey:@"centeredDateScrollLeftAnimation"];
         b_centered_date_label_is_animating = YES;
         
         [CATransaction begin];
         [CATransaction setDisableActions:YES];
         [centeredDateLabel sizeToFit];
-        centeredDateLabel.frame = CGRectMake(self.bounds.size.width, r.origin.y, r.size.width, r.size.height);
+        centeredDateLabel.frame = CGRectMake(
+                                  self.bounds.size.width,
+                                  r.origin.y,
+                                  r.size.width,
+                                  r.size.height);
         [CATransaction commit];
     }
     else
@@ -1252,7 +1362,11 @@ NSTimeInterval t2;
         [CATransaction begin];
         [CATransaction setDisableActions:YES];
         [centeredDateLabel sizeToFit];
-        centeredDateLabel.frame = CGRectMake(self.bounds.size.width/2.0 - centeredDateLabel.frame.size.width/2, centeredDateLabel.frame.origin.y, centeredDateLabel.frame.size.width, centeredDateLabel.frame.size.height);
+        centeredDateLabel.frame = CGRectMake(
+                                  self.bounds.size.width/2.0 - centeredDateLabel.frame.size.width/2,
+                                  centeredDateLabel.frame.origin.y,
+                                  centeredDateLabel.frame.size.width,
+                                  centeredDateLabel.frame.size.height);
         [CATransaction commit];
     }
 }
@@ -1263,7 +1377,8 @@ NSTimeInterval t2;
         return;
     
     CGPoint tapPoint = [sender locationInView:scrollView];
-    CGPoint tapPointInView = [scrollView convertPoint:tapPoint toView:self.graphView];
+    CGPoint tapPointInView = [scrollView convertPoint:tapPoint
+                                         toView:self.graphView];
     float n = tapPointInView.x / self.x_spacing;
     
     int tapped_index = 0;
@@ -1350,8 +1465,6 @@ NSTimeInterval t2;
 
 -(void)scrollViewDidScroll:(UIScrollView *)sv
 {
-
-    
     if(dates == nil && prices == nil)
     {
         return;
@@ -1365,9 +1478,11 @@ NSTimeInterval t2;
     // Left edge of scrollView (NOT graph though!)
     if(sv.contentOffset.x <= 0)
     {
-        [sv scrollRectToVisible:CGRectMake(9600 - sv.bounds.size.width - 1,0,320,300) animated:NO];
+        [sv scrollRectToVisible:CGRectMake(9600 - sv.bounds.size.width - 1,0,320,300)
+            animated:NO];
         // Now scroll a bit more to the left to preserve the sense of velocity
-        [sv scrollRectToVisible:CGRectMake(9600 - sv.bounds.size.width - 250,0,320,300) animated:YES];
+        [sv scrollRectToVisible:CGRectMake(9600 - sv.bounds.size.width - 250,0,320,300)
+            animated:YES];
         last_offset_x = 9600 - sv.bounds.size.width - 250;
         fraction_offset_x = 0.0f;
         return;
@@ -1420,10 +1535,13 @@ NSTimeInterval t2;
                 // If buffer isn't at right edge of graph already, query more right buffer
                 if(![dates[[dates count]-1] isEqual:[NSNull null]])
                 {
-                    queried_right_buffer_timestamp = [(NSDate*)dates[[dates count]-1] timeIntervalSince1970] + ([(NSNumber*)secondsInPeriod[period] intValue] * MAX_BUFFER_SCREEN_LENGTH);
-                    int start = [(NSDate*)dates[[dates count]-1] timeIntervalSince1970] + frequency;
+                    queried_right_buffer_timestamp = [(NSDate*)dates[[dates count]-1] timeIntervalSince1970]
+                                                     + ([(NSNumber*)secondsInPeriod[period] intValue] * MAX_BUFFER_SCREEN_LENGTH);
+                    int start = [(NSDate*)dates[[dates count]-1] timeIntervalSince1970]
+                                + frequency;
                     bWaitingForRightBufferData = YES;
-                    [self queryStart:start end:queried_right_buffer_timestamp];
+                    [self queryStart:start
+                          end:queried_right_buffer_timestamp];
                 }
             }
         }
@@ -1449,10 +1567,13 @@ NSTimeInterval t2;
                 }
                 else
                 {
-                    queried_left_buffer_timestamp = [(NSDate*)dates[0] timeIntervalSince1970] - ([(NSNumber*)secondsInPeriod[period] intValue] * MAX_BUFFER_SCREEN_LENGTH);
-                    int queried_left_buffer_end_timestamp = [(NSDate*)dates[0] timeIntervalSince1970] - frequency;
+                    queried_left_buffer_timestamp = [(NSDate*)dates[0] timeIntervalSince1970]
+                                                    - ([(NSNumber*)secondsInPeriod[period] intValue] * MAX_BUFFER_SCREEN_LENGTH);
+                    int queried_left_buffer_end_timestamp = [(NSDate*)dates[0] timeIntervalSince1970]
+                                                            - frequency;
                     bWaitingForLeftBufferData = YES;
-                    [self queryStart:queried_left_buffer_timestamp end:queried_left_buffer_end_timestamp];
+                    [self queryStart:queried_left_buffer_timestamp
+                          end:queried_left_buffer_end_timestamp];
                 }
             }
         }
@@ -1470,25 +1591,42 @@ NSTimeInterval t2;
     //NSLog(@"didScroll: offsetX=%f", sv.contentOffset.x);
 }
 
--(void)scrollViewWillBeginDragging:(UIScrollView *)sv {dragDisplacement = sv.contentOffset;}
--(void)scrollViewWillEndDragging:(UIScrollView *)sv withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {dragVelocity = velocity;}
--(void)scrollViewDidEndDragging:(UIScrollView *)sv willDecelerate:(BOOL)decelerate {}
--(void)scrollViewDidEndDecelerating:(UIScrollView *)sv {}
--(void)scrollViewDidEndScrollingAnimation:(UIScrollView *)sv {}
--(void)scrollViewDidEndZooming:(UIScrollView *)sv withView:(UIView *)view atScale:(CGFloat)scale {}
+-(void)scrollViewWillBeginDragging:(UIScrollView *)sv
+{
+    dragDisplacement = sv.contentOffset;
+}
+-(void)scrollViewWillEndDragging:(UIScrollView *)sv
+                    withVelocity:(CGPoint)velocity
+             targetContentOffset:(inout CGPoint *)targetContentOffset
+{
+    dragVelocity = velocity;
+}
+-(void)scrollViewDidEndDragging:(UIScrollView *)sv
+                 willDecelerate:(BOOL)decelerate
+{}
+-(void)scrollViewDidEndDecelerating:(UIScrollView *)sv
+{}
+-(void)scrollViewDidEndScrollingAnimation:(UIScrollView *)sv
+{}
+-(void)scrollViewDidEndZooming:(UIScrollView *)sv
+                      withView:(UIView *)view atScale:(CGFloat)scale
+{}
 
--(void)connection:(NSURLConnection *)c didReceiveResponse:(NSURLResponse *)response
+-(void)connection:(NSURLConnection *)c
+didReceiveResponse:(NSURLResponse *)response
 {
     connectionData = [NSMutableData data];
     [connectionData setLength:0];
 }
 
--(void)connection:(NSURLConnection *)c didReceiveData:(NSData *)data
+-(void)connection:(NSURLConnection *)c
+   didReceiveData:(NSData *)data
 {
      [connectionData appendData:data];
 }
 
--(void)connection:(NSURLConnection *)c didFailWithError:(NSError *)error
+-(void)connection:(NSURLConnection *)c
+ didFailWithError:(NSError *)error
 {
     NSLog(@"connection failed with error %@", error);
     
@@ -1501,10 +1639,13 @@ NSTimeInterval t2;
 
 -(void)connectionDidFinishLoading:(NSURLConnection *)c
 {
-    NSString *responseString = [[NSString alloc] initWithData:connectionData encoding:NSUTF8StringEncoding];
+    NSString *responseString = [[NSString alloc] initWithData:connectionData
+                                                 encoding:NSUTF8StringEncoding];
     NSError *e = nil;
     NSData *jsonData = [responseString dataUsingEncoding:NSUTF8StringEncoding];
-    NSDictionary* historyData = [NSJSONSerialization JSONObjectWithData:jsonData options: NSJSONReadingMutableContainers error: &e];
+    NSDictionary* historyData = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                     options: NSJSONReadingMutableContainers
+                                                     error: &e];
     
     if(e != nil)
     {

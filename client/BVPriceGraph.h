@@ -48,6 +48,7 @@ struct VertexInfo
 @property (strong, nonatomic) NSMutableArray* prices;
 @property (strong, nonatomic) NSString* symbol;
 @property (strong, nonatomic) NSString* frequency_symbol;
+@property (strong, nonatomic) NSString* getGraphURL;
 @property (nonatomic) TimePeriod period;
 @property (nonatomic) NSRange displayRange;
 @property (strong, nonatomic) NSArray* minMaxIndices;

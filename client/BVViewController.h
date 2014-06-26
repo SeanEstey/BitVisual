@@ -66,6 +66,7 @@ typedef enum ConnectionType: NSUInteger {
 @property (strong, nonatomic) NSString* currency;
 @property (strong, nonatomic) NSString* exchange;
 @property (strong, nonatomic) NSNumber* lastTickerUpdate;
+@property (strong, nonatomic) NSString* getMarketsURL;
 @property (nonatomic) TimePeriod period;
 @property (nonatomic) NSTimeInterval lastQueriedStartTime;
 @property (nonatomic) NSTimeInterval lastQueriedEndTime;
