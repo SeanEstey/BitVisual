@@ -39,7 +39,7 @@ def mongo_connect():
 def mongo_disconnect(db):
 	return db.connection.close()
 	
-def update_markets(db, url, source):
+def update_markets(db, source):
 	import simplejson
 	import urllib2
 
@@ -76,8 +76,7 @@ def update_markets(db, url, source):
 	elif source == 'btc_charts':
 		for (i, item) in enumerate(data):
 			symbol = item['symbol']
-			if symbol in mongo_collections and item['avg'] > 0 
-			and item['close'] is not None:
+			if symbol in mongo_collections and item['avg'] > 0 and item['close'] is not None:
 				# update symbol collection, insert new document if symbol doesn't exist (upsert)
 				collection = {'symbol':symbol} 
 				query = {'$set': {'time':item['latest_trade'], 'close':int(item['close'])}}
