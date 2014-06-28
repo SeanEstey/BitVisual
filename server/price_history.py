@@ -33,7 +33,7 @@ def application(environment, start_response):
 		prices = db[symbol].find({'date':{'$in':query_dates}}, {'_id':False,'price':1,'date':1})
 	elif frequency == 'h':
 		if end == 0:
-			prices = db[symbol].find().sort('date',-1).limit(num_records)
+			prices = db[symbol].find({},{'_id':False,'price':1,'date':1}).sort('date',-1).limit(num_records)
 		else:
 			prices = db[symbol].find({'date':{'$gte':start,'$lte':end}},{'_id':False,'price':1, 'date':1})
 
