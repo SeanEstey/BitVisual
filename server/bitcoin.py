@@ -1,6 +1,5 @@
 # Library for managing trade data from exchanges and storing in mongodb.
 # Author: Sean Estey
-# hooks
 
 import datetime
 import os
