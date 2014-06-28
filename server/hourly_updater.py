@@ -33,10 +33,10 @@ if __name__ == '__main__':
 	
 	for s in btccharts_symbols:
 		res = bitcoin.update_trades(db, s,'btc_charts')	
-		if res == 0:
+		if res == None:
 			num_fails += 1
 			fail_list += ', ' + s
-		elif res > 0:
+		elif res >= 0:
 			num_successes += 1
 			n += res
 
@@ -53,10 +53,10 @@ if __name__ == '__main__':
 						'btcavgPLN']
 	for s in btcavg_symbols:
 		res = bitcoin.update_trades(db, s,'btc_avg')
-		if res == 0:
+		if res == None:
 			num_fails += 1
 			fail_list += ', ' + s
-		elif res > 0:
+		elif res >= 0:
 			num_successes += 1	
 			n += res
 
