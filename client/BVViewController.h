@@ -36,6 +36,7 @@ typedef enum ConnectionType: NSUInteger {
 @property (strong, nonatomic) IBOutlet UILabel* timeLabel;
 @property (strong, nonatomic) IBOutlet UILabel* volumeLabel;
 @property (strong, nonatomic) IBOutlet UILabel* priceDeltaLabel;
+@property (strong, nonatomic) IBOutlet UILabel* creditLabel;
 @property (strong, nonatomic) IBOutlet BVMenu* currenciesMenu;
 @property (strong, nonatomic) IBOutlet BVMenu* timeSpanMenu;
 @property (strong, nonatomic) IBOutlet BVMenu* exchangesMenu;

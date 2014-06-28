@@ -8,7 +8,7 @@
 @implementation BVViewController
 
 @synthesize connections;
-@synthesize priceLabel, priceChangeLabel, timeLabel, volumeLabel;
+@synthesize priceLabel, priceChangeLabel, timeLabel, volumeLabel, creditLabel;
 @synthesize marketPrices, marketTradeTimes, cachedData;
 @synthesize marketDataTimer, graphDataTimer;
 @synthesize currency, exchange, period, symbol;
@@ -388,6 +388,21 @@ NSTimeInterval t2;
     self.pickerView.hidden = true;
     [self.view addSubview:pickerView];
     
+    // CREDIT LBL
+    CGRect r2 = CGRectMake(0,
+                           screenBounds.size.height - 50,
+                           screenBounds.size.width,
+                           50);
+    creditLabel = [[UILabel alloc] initWithFrame:r2];
+    creditLabel.font = [UIFont systemFontOfSize:14];
+    creditLabel.numberOfLines = 2;
+    creditLabel.textColor = [UIColor whiteColor];
+    creditLabel.textAlignment = NSTextAlignmentCenter;
+    creditLabel.text = @"Data from bitcoinaverage.com and bitcoincharts.com";
+    [self.view addSubview:creditLabel];
+    [creditLabel setHidden:true];
+
+    
     [self setTheme:theme_index];
  }
 
@@ -414,6 +429,7 @@ NSTimeInterval t2;
 	themeColor = color;
 	priceLabel.textColor = themeColor;
     priceChangeLabel.textColor = themeColor;
+    priceGraph.statusCaptionLabel.textColor = themeColor;
     [currencyButton setTitleColor:themeColor forState:UIControlStateNormal];
     [exchangeButton setTitleColor:themeColor forState:UIControlStateNormal];
     timeLabel.textColor = themeColor;
@@ -429,12 +445,10 @@ NSTimeInterval t2;
         @"bw_dock.jpg",
         @"bw_ocean.jpg",
         @"bw_wet_wood.jpg",
-        @"blue_circles_free.jpg",
         @"abstract_smoke_free_blur.jpg",
         @"sparkling_sea_free_small.jpg",
         @"red_gradient.jpg",
         @"nebula.jpg",
-        @"wild_flowers_free.jpg",
         @"wheat_free_small.jpg",
         nil];
     
@@ -464,34 +478,20 @@ NSTimeInterval t2;
     {
 		[self setThemeColor:[UIColor darkGrayColor]];
 		[priceGraph setThemeColor:[UIColor whiteColor]];
+        priceGraph.statusCaptionLabel.textColor = [UIColor whiteColor];
     }
     else if(index == 2) // B&W Wet Wood
     {
     	[self setThemeColor:[UIColor whiteColor]];
 		[priceGraph setThemeColor:[UIColor whiteColor]];
     }
-    else if(index == 3) // blue_circles
-    {
-        [self setThemeColor:[UIColor whiteColor]];
-   		[priceGraph setThemeColor:[UIColor whiteColor]];
-          NSMutableArray *colors = [NSMutableArray array];
-        [colors addObject:(id)[UIColor colorWithRed:0.0
-                                       green:0.8
-                                       blue:0.6
-                                       alpha:1.0].CGColor];
-        [colors addObject:(id)[UIColor colorWithRed:0.0
-                                       green:0.8
-                                       blue:0.6
-                                       alpha:1.0].CGColor];
-        priceGraph.gradientLayer.colors = colors;
-    }
-    else if(index == 4) // smoke
+    else if(index == 3) // smoke
     {
       //  priceGraph.gradientLayer.opacity = 0.8f;
         [self setThemeColor:[UIColor darkGrayColor]];
         [priceGraph setThemeColor:[UIColor darkGrayColor]];
     }
-    else if(index == 5) // light_blue_gradient.jpg
+    else if(index == 4) // light_blue_gradient.jpg
     {
         [self setThemeColor:[UIColor whiteColor]];
         [priceGraph setThemeColor:[UIColor darkGrayColor]];
@@ -506,23 +506,17 @@ NSTimeInterval t2;
                                        alpha:1.0].CGColor];
         priceGraph.gradientLayer.colors = colors;
     }
-    else if(index == 6) // red_gradient.jpg
+    else if(index == 5) // red_gradient.jpg
     {
         [self setThemeColor:[UIColor whiteColor]];
         [priceGraph setThemeColor:[UIColor whiteColor]];
     }
-    else if(index == 7) // nebula
+    else if(index == 6) // nebula
     {
         [self setThemeColor:[UIColor whiteColor]];
         [priceGraph setThemeColor:[UIColor whiteColor]];
     }
-    else if(index == 8) // wild flowers
-    {
-        priceGraph.gradientLayer.opacity = 0.8f;
-        [self setThemeColor:[UIColor whiteColor]];
-        [priceGraph setThemeColor:[UIColor blackColor]];
-    }
-    else if(index == 9) // wheat field
+    else if(index == 7) // wheat field
     {
         [self setThemeColor:[UIColor darkGrayColor]];
         [priceGraph setThemeColor:[UIColor whiteColor]];
@@ -779,6 +773,8 @@ NSTimeInterval t2;
         
         if(self.background_mode != true)
         {
+            [loadSpinner stopAnimating];
+            [loadSpinner setHidden:YES];
             priceGraph.statusCaptionLabel.hidden = false;
             priceGraph.statusCaptionLabel.text = @"Unable to connect to server.";
             [retryConnectionButton setHidden:NO];
@@ -832,6 +828,7 @@ NSTimeInterval t2;
 
     if(exchangesMenu == nil)
     {
+        creditLabel.hidden = NO;
         toolbar.hidden = NO;
         exchangesArray = [[NSMutableArray alloc] init];
         NSArray* exchanges = [self getSortedExchangesForCurrency:self.currency];
@@ -870,6 +867,7 @@ NSTimeInterval t2;
         toolbar.hidden = YES;
         [exchangesMenu hideDropDown:sender];
         exchangesMenu = nil;
+        [creditLabel setHidden:true];
     }
 }
 
@@ -907,20 +905,18 @@ NSTimeInterval t2;
     {
         toolbar.hidden = NO;
         NSArray* themeFilenames = [NSArray arrayWithObjects:
-                                   @"Black & White",
-                                   @"Water",
+                                   @"Dock",
+                                   @"Waves",
                                    @"Rain",
-                                   @"Blue Circles",
-                                   @"Orange Smoke",
-                                   @"Blue",
-                                   @"Red",
+                                   @"Orange",
+                                   @"Ocean",
+                                   @"Crimson",
                                    @"Nebula",
-                                   @"Flowers",
                                    @"Field",
                                    nil];
 
         float height = [themeFilenames count] * 40;
-        float width = 140.0f;
+        float width = 90.0f;
         themesMenu = [[BVMenu alloc]showDropDown:sender
                         hasWidth:width
                         hasHeight:height

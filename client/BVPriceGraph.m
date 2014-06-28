@@ -47,7 +47,7 @@ NSTimeInterval t2;
         bWaitingForDisplayData = NO;
         bMostRecentData = NO;
         
-        getGraphURL = @"http://www.seanestey.ca/bitvisual/python/price_history.py?symbol=%@&start=%i&end=%i&freq=%@";
+        getGraphURL = @"http://www.seanestey.ca/bitvisual/python/price_history.py?symbol=%@&start=%i&end=%i&freq=%@&records=%i";
         
         secondsInPeriod = [NSArray arrayWithObjects:
                            [NSNumber numberWithInt:86400],
@@ -205,6 +205,7 @@ NSTimeInterval t2;
 {
 	themeColor = color;
     graphLineLayer.strokeColor = themeColor.CGColor;
+ //   statusCaptionLabel.textColor = themeColor;
   //  priceDeltaLabel.textColor = themeColor;
     centeredDateLabel.textColor = themeColor;
 	
@@ -237,7 +238,7 @@ NSTimeInterval t2;
 
 -(void)queryStart:(int)start end:(int)end
 {
-    NSString* connectionURL = [NSString stringWithFormat:getGraphURL, symbol, start, end, frequency_symbol];
+    NSString* connectionURL = [NSString stringWithFormat:getGraphURL, symbol, start, end, frequency_symbol, 0];
     
     t1 = [[NSDate date] timeIntervalSince1970];
     connection = [[NSURLConnection alloc] initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:connectionURL]]
@@ -247,6 +248,22 @@ NSTimeInterval t2;
     // Very important!!
     [connection scheduleInRunLoop:[NSRunLoop currentRunLoop]
                 forMode:NSRunLoopCommonModes];
+    [connection start];
+}
+
+-(void)queryLatest:(int)records
+{
+    NSLog(@"Querying latest %i records", records);
+    NSString* connectionURL = [NSString stringWithFormat:getGraphURL, symbol, 0, 0, frequency_symbol, records];
+    
+    t1 = [[NSDate date] timeIntervalSince1970];
+    connection = [[NSURLConnection alloc] initWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:connectionURL]]
+                                                 delegate:self
+                                         startImmediately:NO];
+    
+    // Very important!!
+    [connection scheduleInRunLoop:[NSRunLoop currentRunLoop]
+                          forMode:NSRunLoopCommonModes];
     [connection start];
 }
 
@@ -352,30 +369,40 @@ NSTimeInterval t2;
         // Verify integrity of data
         // We know we're at right edge of graph if the last timestamp
         // returned is < (queried_display_end_timestamp - frequency)
-        
-        if([(NSDate*)dateData[0] timeIntervalSince1970] > queried_display_start_timestamp)
+        if(queried_display_start_timestamp == 0 && queried_display_end_timestamp == 0)
         {
-            if([dateData count] < display_length)
-                self.displayRange = NSMakeRange(0, [dateData count]);
-            // Pushing against left edge of graph. No left buffer + adjust display range.
-            else
-                self.displayRange = NSMakeRange(0, display_length);
-        }
-        else if([(NSDate*)dateData[[dateData count]-1] timeIntervalSince1970] < (queried_display_end_timestamp-frequency))
-        {
-            if([dateData count] < display_length)
-                self.displayRange = NSMakeRange(0, [dateData count]);
-            // Pushing against right edge of graph. No right buffer + adjust display range.
-            else
-                self.displayRange = NSMakeRange([dates count]-display_length, display_length);
-            [dates insertObject:[NSNull null]
-                    atIndex:[dates count]];
-            [prices insertObject:[NSNull null]
-                    atIndex:[prices count]];
+            self.displayRange = NSMakeRange([dates count]-display_length, display_length);
+            [dates insertObject:[NSNull null] atIndex:[dates count]];
+            [prices insertObject:[NSNull null] atIndex:[prices count]];
             lastRightEdgeUpdate = [NSDate date];
         }
         else
-             self.displayRange = NSMakeRange(left_buffer_length, display_length);
+        {
+            if([(NSDate*)dateData[0] timeIntervalSince1970] > queried_display_start_timestamp)
+            {
+                if([dateData count] < display_length)
+                self.displayRange = NSMakeRange(0, [dateData count]);
+                // Pushing against left edge of graph. No left buffer + adjust display range.
+                else
+                self.displayRange = NSMakeRange(0, display_length);
+            }
+            else if([(NSDate*)dateData[[dateData count]-1] timeIntervalSince1970] < (queried_display_end_timestamp-frequency))
+            {
+                if([dateData count] < display_length)
+                self.displayRange = NSMakeRange(0, [dateData count]);
+                // Pushing against right edge of graph. No right buffer + adjust display range.
+                else
+                    self.displayRange = NSMakeRange([dates count]-display_length, display_length);
+                    [dates insertObject:[NSNull null]
+                                atIndex:[dates count]];
+                    [prices insertObject:[NSNull null]
+                                 atIndex:[prices count]];
+                    lastRightEdgeUpdate = [NSDate date];
+            }
+            else
+            self.displayRange = NSMakeRange(left_buffer_length, display_length);
+        }
+        
         
         x_spacing = graphView.bounds.size.width / (float)(displayRange.length-1);
         bWaitingForDisplayData = NO;
@@ -500,6 +527,8 @@ NSTimeInterval t2;
         frequency_symbol = @"h";
     }
 
+    
+/*
     NSCalendar *calendar = [NSCalendar currentCalendar];
     NSDate* now = [NSDate date];
     NSDateComponents *comps = [calendar components:
@@ -525,8 +554,17 @@ NSTimeInterval t2;
                                     - ([(NSNumber*)secondsInPeriod[period] intValue]
                                     * MAX_BUFFER_SCREEN_LENGTH);
     queried_right_buffer_timestamp = queried_display_end_timestamp;
+ */
+    queried_display_end_timestamp = 0;
+    queried_display_start_timestamp = 0;
+    queried_left_buffer_timestamp = 0;
+    queried_right_buffer_timestamp = 0;
     
-    [self queryStart:queried_left_buffer_timestamp end:queried_right_buffer_timestamp];
+    int seconds_in_period = [(NSNumber*)secondsInPeriod[period] intValue];
+
+    int num_records = seconds_in_period / frequency;
+    
+    [self queryLatest:num_records];
 }
 
 -(void)changePeriodTo:(enum TimePeriod)p
@@ -969,7 +1007,7 @@ NSTimeInterval t2;
     			CGPoint p = [self getGraphLineCoordsFor:sub_index+displayRange.location];
     			layer.frame = CGRectMake(p.x, self.bounds.size.height-15, 35, 50);
     			layer.foregroundColor = themeColor.CGColor;
-                layer.alignmentMode = kCAAlignmentCenter;
+                layer.alignmentMode = kCAAlignmentLeft;  //kCAAlignmentCenter;
     			layer.fontSize = 10.0f;
                 layer.opacity = xAxisAnnotationOpacity;
                 layer.contentsScale = [[UIScreen mainScreen] scale];
@@ -1632,6 +1670,8 @@ didReceiveResponse:(NSURLResponse *)response
     
     statusCaptionLabel.hidden = false;
     statusCaptionLabel.text = @"Unable to connect to server for price history.";
+    [loadSpinner stopAnimating];
+    [loadSpinner setHidden:YES];
     [retryConnectionButton setHidden:NO];
     prices = nil;
     dates = nil;
@@ -1647,6 +1687,9 @@ didReceiveResponse:(NSURLResponse *)response
                                                      options: NSJSONReadingMutableContainers
                                                      error: &e];
     
+    [loadSpinner stopAnimating];
+    [loadSpinner setHidden:YES];
+    
     if(e != nil)
     {
         NSLog(@"Error in PriceGraph::connectionDidFinishLoading: %@", e);
@@ -1658,8 +1701,7 @@ didReceiveResponse:(NSURLResponse *)response
     }
     
     [retryConnectionButton setHidden:YES];
-    [loadSpinner stopAnimating];
-    [loadSpinner setHidden:YES];
+ 
     
     NSMutableArray *con_prices = [[NSMutableArray alloc] init];
     NSMutableArray *con_dates = [[NSMutableArray alloc] init];

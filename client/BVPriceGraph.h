@@ -106,6 +106,7 @@ struct VertexInfo
 -(void)findMinMaxIndices;
 -(void)updatePriceDelta;
 -(void)queryStart:(int)start end:(int)end;
+-(void)queryLatest:(int)records;
 -(void)draw:(bool)animated;
 -(void)drawHorizontalGraphLines;
 -(void)plot:(bool)animatedLine;
