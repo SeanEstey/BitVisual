@@ -562,7 +562,7 @@ NSTimeInterval t2;
     
     int seconds_in_period = [(NSNumber*)secondsInPeriod[period] intValue];
 
-    int num_records = seconds_in_period / frequency;
+    int num_records = (seconds_in_period / frequency) * MAX_BUFFER_SCREEN_LENGTH ;
     
     [self queryLatest:num_records];
 }
