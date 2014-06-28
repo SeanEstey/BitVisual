@@ -350,7 +350,7 @@ NSTimeInterval t2;
     priceChangeLabel.backgroundColor = [UIColor clearColor];
     priceChangeLabel.textAlignment = NSTextAlignmentCenter;
     [self.view addSubview:priceChangeLabel];
-    priceGraph.priceDeltaLabel = priceChangeLabel;
+
  
     // GRAPH
     CGRect chartFrame = CGRectMake(
@@ -362,6 +362,7 @@ NSTimeInterval t2;
     [self.view insertSubview:priceGraph atIndex:1];
     priceGraph.retryConnectionButton = self.retryConnectionButton;
     priceGraph.loadSpinner = self.loadSpinner;
+    priceGraph.priceDeltaLabel = priceChangeLabel;
     
     // TOOLBAR
     toolbar = [[UIToolbar alloc] init];

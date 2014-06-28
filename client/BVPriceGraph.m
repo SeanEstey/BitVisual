@@ -206,7 +206,7 @@ NSTimeInterval t2;
 	themeColor = color;
     graphLineLayer.strokeColor = themeColor.CGColor;
  //   statusCaptionLabel.textColor = themeColor;
-  //  priceDeltaLabel.textColor = themeColor;
+//    priceDeltaLabel.textColor = themeColor;
     centeredDateLabel.textColor = themeColor;
 	
 	for(int i=0; i<[vertexAnnotations count]; i++)
@@ -639,6 +639,8 @@ NSTimeInterval t2;
         priceDeltaLabel.text = @"";
         return;
     }
+    
+    // Todo: price_end should be current close price on ticker
     
     float price_end = [((NSNumber*)prices[displayRange.location+displayRange.length-1]) floatValue];
     float price_start = [((NSNumber*)prices[displayRange.location]) floatValue];
