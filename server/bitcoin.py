@@ -164,7 +164,7 @@ def update_trades(db, symbol, source):
 		url = 'http://api.bitcoincharts.com/v1/trades.csv?symbol=' + symbol + '&start=' + str(last_timestamp)
 		df = parse_raw_trades(url, 'btc_charts')
 		if df.empty:
-			return 0
+			return None
 		else:
 			db[symbol].remove({'date':last_timestamp})
 			df = process_raw_trades(df,True)
@@ -173,7 +173,7 @@ def update_trades(db, symbol, source):
 		url = 'https://api.bitcoinaverage.com/history/' + currency + '/per_hour_monthly_sliding_window.csv'
 		df = parse_raw_trades(url, 'btc_avg')
 		if df.empty:
-			return 0
+			return None
 		else:
 			db[symbol].remove({'date':last_timestamp})
 			df = process_raw_trades(df,False)
