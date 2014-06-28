@@ -528,33 +528,6 @@ NSTimeInterval t2;
     }
 
     
-/*
-    NSCalendar *calendar = [NSCalendar currentCalendar];
-    NSDate* now = [NSDate date];
-    NSDateComponents *comps = [calendar components:
-                               NSEraCalendarUnit |
-                               NSYearCalendarUnit|
-                               NSMonthCalendarUnit |
-                               NSDayCalendarUnit |
-                               NSHourCalendarUnit
-                               fromDate:now];
-    
-    if(frequency == 3600)
-        [comps setHour: [comps hour]+1];  // Possible bug: may need to check if last hour of day
-    else if(frequency == 3600*24)
-        [comps setDay:[comps day]+1];
-   
-    NSDate* roundedDate = [calendar dateFromComponents:comps];
-    
-    queried_display_end_timestamp = [roundedDate timeIntervalSince1970];
-    queried_display_start_timestamp = queried_display_end_timestamp -
-                                      [(NSNumber*)secondsInPeriod[period] intValue];
-    
-    queried_left_buffer_timestamp = queried_display_start_timestamp
-                                    - ([(NSNumber*)secondsInPeriod[period] intValue]
-                                    * MAX_BUFFER_SCREEN_LENGTH);
-    queried_right_buffer_timestamp = queried_display_end_timestamp;
- */
     queried_display_end_timestamp = 0;
     queried_display_start_timestamp = 0;
     queried_left_buffer_timestamp = 0;
