@@ -53,6 +53,7 @@ struct VertexInfo
 @property (nonatomic) NSRange displayRange;
 @property (strong, nonatomic) NSArray* minMaxIndices;
 @property (strong, nonatomic) NSNumber* priceSpread;
+@property (strong, nonatomic) NSNumber* tickerPrice;
 @property (nonatomic) CGPoint dragVelocity;
 @property (nonatomic) CGPoint dragDisplacement;
 @property (nonatomic) float last_offset_x;
@@ -91,7 +92,6 @@ struct VertexInfo
 @property (nonatomic) bool bWaitingForRightBufferData;
 @property (nonatomic) bool bMostRecentData;
 @property (strong, nonatomic) NSDate* lastRightEdgeUpdate;
-
 @property (strong, nonatomic) IBOutlet UILabel* centeredDateLabel;
 @property (strong, nonatomic) NSDateFormatter* centeredDateLabelFormat;
 @property (nonatomic) bool b_centered_date_label_is_animating;

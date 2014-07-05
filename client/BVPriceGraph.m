@@ -20,6 +20,7 @@ NSTimeInterval t2;
 @implementation BVPriceGraph
 
 @synthesize dates, prices, displayRange, period, symbol, secondsInPeriod, frequency_symbol, minMaxIndices, priceSpread, frequency;
+@synthesize tickerPrice;
 @synthesize graphLineLayer, horizontalLineLayers, gradientLayer, linePath, lineAnimation, lineDrawn, centeredDateLabelAnimation, b_centered_date_label_is_animating;
 @synthesize graphView, scrollView, imageView;
 @synthesize last_offset_x, fraction_offset_x, x_spacing, dragDisplacement, dragVelocity, num_horizontal_graphlines;
@@ -42,6 +43,7 @@ NSTimeInterval t2;
         
         lastRightEdgeUpdate = nil;
         connection = nil;
+        tickerPrice = nil;
         bWaitingForLeftBufferData = NO;
         bWaitingForRightBufferData = NO;
         bWaitingForDisplayData = NO;
@@ -99,6 +101,7 @@ NSTimeInterval t2;
         scrollView.delegate = self;
         scrollView.layer.opacity = 0.1f;
         scrollView.contentSize=CGSizeMake(SCROLL_VIEW_WIDTH,300);
+        [scrollView setContentOffset:CGPointMake(SCROLL_VIEW_WIDTH, 0.0f) animated:NO];
         [self addSubview:scrollView];
         
         UITapGestureRecognizer *doubleTapGestureRecognizer = [[UITapGestureRecognizer alloc]
@@ -371,7 +374,10 @@ NSTimeInterval t2;
         // returned is < (queried_display_end_timestamp - frequency)
         if(queried_display_start_timestamp == 0 && queried_display_end_timestamp == 0)
         {
-            self.displayRange = NSMakeRange([dates count]-display_length, display_length);
+            if([dates count] > display_length)
+                self.displayRange = NSMakeRange([dates count]-display_length, display_length);
+            else
+                self.displayRange = NSMakeRange(0, [dates count]-1);
             [dates insertObject:[NSNull null] atIndex:[dates count]];
             [prices insertObject:[NSNull null] atIndex:[prices count]];
             lastRightEdgeUpdate = [NSDate date];
@@ -634,7 +640,7 @@ NSTimeInterval t2;
 
 -(void)updatePriceDelta
 {
-    if([prices count] == 0)
+    if([prices count] == 0 || [tickerPrice isEqual:[NSNull null]])
     {
         priceDeltaLabel.text = @"";
         return;
@@ -642,7 +648,7 @@ NSTimeInterval t2;
     
     // Todo: price_end should be current close price on ticker
     
-    float price_end = [((NSNumber*)prices[displayRange.location+displayRange.length-1]) floatValue];
+    float price_end = [tickerPrice floatValue]; //[((NSNumber*)prices[displayRange.location+displayRange.length-1]) floatValue];
     float price_start = [((NSNumber*)prices[displayRange.location]) floatValue];
 	float price_delta = ((price_end - price_start)/price_start)*100;
     

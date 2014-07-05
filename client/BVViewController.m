@@ -659,6 +659,7 @@ NSTimeInterval t2;
     [nf setMaximumFractionDigits:0];
     [nf stringForObjectValue:close_price];
     priceLabel.text = [nf stringForObjectValue:close_price];
+    priceGraph.tickerPrice = (NSNumber*)close_price;
     
     if([priceLabel.text length] > 4)
         priceLabel.font = [UIFont fontWithName:@"Futura" size:60];
@@ -716,11 +717,9 @@ NSTimeInterval t2;
         {
             if([lastRightEdgeUpdateComp hour] != [now hour] && [now minute] > 5)
             {
-                priceGraph.statusCaptionLabel.hidden = false;
-                priceGraph.statusCaptionLabel.text = @"Doing hourly graph refresh";
                 [loadSpinner setHidden:NO];
                 [loadSpinner startAnimating];
-                NSLog(@"Time to refresh graph");
+                NSLog(@"1 hour timer expired: refreshing graph");
                 [priceGraph setSymbol:self.symbol withPeriod:self.period];
             }
         }
