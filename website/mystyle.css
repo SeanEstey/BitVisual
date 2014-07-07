@@ -1,0 +1,52 @@
+/* selectors can overload class ('center'), elements ('p'), or be assigned id's to be placed manually */
+
+/* test out jquery and ui-responsive class for auto-resizing pages to suit mobile devices */
+
+
+/* 
+	http://www.w3schools.com/jquerymobile/jquerymobile_grids.asp 
+	http://learn.jquery.com/about-jquery/how-jquery-works/
+*/
+
+body {
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-left: 0px;
+	margin-right: 0px;
+}
+
+.ui-block-a {
+	font-weight: normal;
+	text-align: center;
+	padding-right: 30px;
+	border:1px solid black;
+}
+
+.ui-block-b {
+	background-color:transparent;
+	border: 1px solid black;
+	font-family: Consolas, 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', Monaco, 'Courier New', monospace;
+	font-weight: normal;
+	text-align: center;
+	padding: 30px;
+}
+
+@media only screen and (max-device-width: 1024px) {
+
+}
+
+@media only screen and (max-device-width: 640px) {
+	#left, #right {
+		max-width: 320px;
+		min-width: 320px;
+		padding: 0px;
+	}
+}
+
+@media only screen and (max-device-width: 540px) {
+
+}
+
+@media only screen and (max-device-width: 320px) {
+
+}
