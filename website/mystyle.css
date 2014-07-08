@@ -1,52 +1,151 @@
-/* selectors can overload class ('center'), elements ('p'), or be assigned id's to be placed manually */
-
-/* test out jquery and ui-responsive class for auto-resizing pages to suit mobile devices */
-
-
-/* 
-	http://www.w3schools.com/jquerymobile/jquerymobile_grids.asp 
-	http://learn.jquery.com/about-jquery/how-jquery-works/
-*/
+h1 {
+	font-size: 50px;
+}
 
 body {
 	margin-top: 0px;
 	margin-bottom: 0px;
 	margin-left: 0px;
 	margin-right: 0px;
+	text-rendering: optimizeLegibility;
+	font-family: Consolas, 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', Monaco, 'Courier New', monospace;
+}
+
+#topTitle {
+	visibility: hidden;
+	text-align: center;
+/*	background-color: black;*/
+	padding:0px;
+	font-family: Consolas, 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', Monaco, 'Courier New', monospace;
+	
+}
+
+#rightTitle {
+	/*background-color: blue;*/
+	font-family: Consolas, 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', Monaco, 'Courier New', monospace;
+}
+
+#left {
+	max-width: 500px;
+	min-width: 400px;
+	padding:0px;
+	/*background-color: fuchsia;*/
+}
+
+#right {
+	max-width: 500px;
+	min-width: 400px;
+/*	background-color: grey; */
+	margin-right: 0px;
+	padding:0px;
+}
+
+#description {
+	text-align: center;
+/*	background-color: red; */
+	word-wrap:break-word;
+	margin-right: 0px;
+	font-family: Consolas, 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', Monaco, 'Courier New', monospace;
 }
 
 .ui-block-a {
 	font-weight: normal;
 	text-align: center;
-	padding-right: 30px;
-	border:1px solid black;
+	/*padding-right: 30px;*/
 }
 
 .ui-block-b {
 	background-color:transparent;
-	border: 1px solid black;
-	font-family: Consolas, 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', Monaco, 'Courier New', monospace;
 	font-weight: normal;
 	text-align: center;
-	padding: 30px;
+	/*padding: 30px;*/
 }
 
-@media only screen and (max-device-width: 1024px) {
-
+/* ipad & ipad mini */
+@media screen and (max-device-width: 1024px) {
+	#left, #right {
+		max-width: 384px;
+		min-width: 384px;
+		padding: 0px;
+	}
+	#rightTitle {
+		font-family:Arial;
+	}
 }
 
-@media only screen and (max-device-width: 640px) {
+/* iphone 5 */
+@media screen and (max-device-width: 640px) {
 	#left, #right {
 		max-width: 320px;
 		min-width: 320px;
 		padding: 0px;
+		margin: 0px;
+	}
+	#rightTitle {
+		display: none;
+		padding: 0px;
+		margin: 0px;
+	}
+	#topTitle {
+		visibility: visible;
+		max-width: 320px;
+		min-width: 320px;
+		padding: 0px;
+		margin: 0px;
+		font-family: Arial;
+	}
+	#description {
+		font-family: Arial;
+	}
+}
+/*
+@media screen and (max-device-width: 540px) {
+	#left, #right {
+		max-width: 270px;
+		min-width: 270px;
+		padding: 0px;
+		margin: 0px;
+	}
+	#rightTitle {
+		display: none;
+		padding: 0px;
+		margin: 0px;
+	}
+	#topTitle {
+		visibility: visible;
+		max-width: 270px;
+		min-width: 270px;
+		padding: 0px;
+		margin: 0px;
+		font-family: Arial;
+	}
+	#description {
+		font-family: Arial;
 	}
 }
 
-@media only screen and (max-device-width: 540px) {
 
+@media screen and (max-device-width: 320px) {
+	#left, #right {
+		max-width: 160px;
+		min-width: 160px;
+		padding: 0px;
+		margin: 0px;
+	}
+	#rightTitle {
+		display: none;
+		padding: 0px;
+	}
+	#topTitle {
+		visibility: visible;
+		max-width: 160px;
+		min-width: 160px;
+		padding: 0px;
+		margin: 0px;
+		font-family: Arial;
+	}
+	#description {
+		font-family: Arial;
+	}
 }
-
-@media only screen and (max-device-width: 320px) {
-
-}
+*/
