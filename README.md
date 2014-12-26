@@ -30,4 +30,4 @@ Add following lines:
 @daily /usr/bin/mongodump -o /data/dump
 * * * * * /usr/bin/python /root/BitVisual/server/markets_updater.py
 
-
+Setup git hooks to copy the 3 server files to /var/www/bitvisual/python after commits
