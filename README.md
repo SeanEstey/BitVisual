@@ -1,15 +1,15 @@
 Server Setup
 
-Ubuntu Dependencies:
+Ubuntu Dependencies:<br>
 -Python 2.7<br>
 -MongoDB<br>
--Apache w/ mod_wsgi<br>
+-Apache w/ mod_wsgi
 
-Python Dependencies:
-pip install numpy pandas easyjson webob
+Python Dependencies:<br>
+$ pip install numpy pandas easyjson webob
 
-Apache Mods:
-apt-get install libapache2-mod-wsgi
+Apache Mods:<br>
+$ apt-get install libapache2-mod-wsgi
 
 Add to VirtualHost in /etc/apache2/sites-available/000-default.conf:
 
@@ -23,8 +23,8 @@ Add to VirtualHost in /etc/apache2/sites-available/000-default.conf:
 
 Place bitcoin.py, get_markets.py, and price_history.py in /var/www/bitvisual/python
 
-Setup schedule:
-$crontab -e
+Setup schedule:<br>
+$ crontab -e
 
 Add following lines:
 
