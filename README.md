@@ -1,9 +1,9 @@
 Server Setup
 
 Ubuntu Dependencies:
--Python 2.7
--MongoDB
--Apache w/ mod_wsgi
+-Python 2.7<br>
+-MongoDB<br>
+-Apache w/ mod_wsgi<br>
 
 Python Dependencies:
 pip install numpy pandas easyjson webob
@@ -27,8 +27,9 @@ Setup schedule:
 $crontab -e
 
 Add following lines:
-@hourly /usr/bin/python /root/BitVisual/server/hourly_updater.py
-@daily /usr/bin/mongodump -o /data/dump
-* * * * * /usr/bin/python /root/BitVisual/server/markets_updater.py
+
+    @hourly /usr/bin/python /root/BitVisual/server/hourly_updater.py
+    @daily /usr/bin/mongodump -o /data/dump
+    * * * * * /usr/bin/python /root/BitVisual/server/markets_updater.py
 
 Optinal: Setup git hooks to copy the 3 server files to /var/www/bitvisual/python after commits
